@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private Uri audioUri;
     private EditText startField, endField, onMinutesField, offMinutesField;
-    private TextView musicText, listText, timerStatus;
+    private TextView musicText, listText;
 
     static class Schedule {
         String start, end;
@@ -48,8 +48,14 @@ public class MainActivity extends Activity {
         TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR CICLICO (1 A 250 MINUTOS)"); timerTitle.setTextSize(18); timerTitle.setTextColor(0xFF14213D); timerTitle.setPadding(0,8,0,4); root.addView(timerTitle);
         onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
         offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
-        timerStatus=new TextView(this); timerStatus.setPadding(0,4,0,4); root.addView(timerStatus);
-        timerStatus.setText("O temporizador será ativado e desativado automaticamente pelos horários programados.");
+        TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFF14213D); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
+        TextView toneHint=new TextView(this); toneHint.setText("Mais grosso  ←  50% neutro  →  Mais fino"); root.addView(toneHint);
+        SeekBar toneControl=new SeekBar(this); toneControl.setMax(100); toneControl.setProgress(prefs.getInt("tone",50)); root.addView(toneControl);
+        toneControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar bar,int value,boolean fromUser){ if(fromUser){ prefs.edit().putInt("tone",value).apply(); Intent i=new Intent(MainActivity.this,PlayerService.class); i.setAction(PlayerService.ACTION_TONE); startService(i); } }
+            public void onStartTrackingTouch(SeekBar bar){}
+            public void onStopTrackingTouch(SeekBar bar){}
+        });
         Button pick=new Button(this); pick.setText("ESCOLHER MÚSICA"); pick.setOnClickListener(v->{
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
