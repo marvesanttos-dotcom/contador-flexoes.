@@ -37,11 +37,11 @@ public class ScheduleReceiver extends BroadcastReceiver {
         SharedPreferences p=c.getSharedPreferences("player",Context.MODE_PRIVATE);
         try{
             JSONArray a=new JSONArray(p.getString("schedules","[]"));
-            int index=id/2;if(index>=a.length())return;
+            int index=id;if(index>=a.length())return;
             JSONObject o=a.getJSONObject(index);
             String time=o.getString(start?"start":"end");
             AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
-            schedule(c,am,id,parse(time),start?ACTION_START:ACTION_STOP);
+            schedule(c,am,index*2+(start?0:1),parse(time),start?ACTION_START:ACTION_STOP);
         }catch(Exception ignored){}
     }
     private static void schedule(Context c,AlarmManager am,int id,int minute,String action){
