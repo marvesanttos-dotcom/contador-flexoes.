@@ -24,7 +24,7 @@ public class PlayerService extends Service {
         if(Build.VERSION.SDK_INT>=26){
             focusRequest=new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-                .setOnAudioFocusChangeListener(focusListener).setWillPauseWhenDucked(false).build();
+                .setOnAudioFocusChangeListener(focusListener).setWillPauseWhenDucked(true).build();
             audioManager.requestAudioFocus(focusRequest);
         }else{
             audioManager.requestAudioFocus(focusListener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
