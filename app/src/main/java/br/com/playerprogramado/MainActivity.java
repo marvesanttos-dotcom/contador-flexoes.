@@ -6,6 +6,11 @@ import android.content.*;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.View;
+import android.view.MotionEvent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.widget.*;
 import java.util.*;
 import org.json.*;
@@ -16,7 +21,7 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private Uri audioUri;
     private EditText startField, endField, onMinutesField, offMinutesField;
-    private TextView musicText, listText;
+    private TextView musicText, listText;\n    private Button cycleToggle;
 
     static class Schedule {
         String start, end;
@@ -49,13 +54,9 @@ public class MainActivity extends Activity {
         onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
         offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
         TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFF14213D); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
-        TextView toneHint=new TextView(this); toneHint.setText("Mais grosso  ←  50% neutro  →  Mais fino"); root.addView(toneHint);
-        SeekBar toneControl=new SeekBar(this); toneControl.setMax(100); toneControl.setProgress(prefs.getInt("tone",50)); root.addView(toneControl);
-        toneControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-            public void onProgressChanged(SeekBar bar,int value,boolean fromUser){ if(fromUser){ prefs.edit().putInt("tone",value).apply(); Intent i=new Intent(MainActivity.this,PlayerService.class); i.setAction(PlayerService.ACTION_TONE); startService(i); } }
-            public void onStartTrackingTouch(SeekBar bar){}
-            public void onStopTrackingTouch(SeekBar bar){}
-        });
+        TextView toneHint=new TextView(this); toneHint.setText("Gire o botão: esquerdo mais grosso • 50% neutro • direito mais fino"); root.addView(toneHint);
+        ToneKnob toneControl=new ToneKnob(this); toneControl.setValue(prefs.getInt("tone",50)); LinearLayout.LayoutParams knobParams=new LinearLayout.LayoutParams(220,220); knobParams.gravity=Gravity.CENTER; root.addView(toneControl,knobParams);
+        toneControl.setOnValueChanged(value->{ prefs.edit().putInt("tone",value).apply(); Intent i=new Intent(MainActivity.this,PlayerService.class); i.setAction(PlayerService.ACTION_TONE); startService(i); });
         Button pick=new Button(this); pick.setText("ESCOLHER MÚSICA"); pick.setOnClickListener(v->{
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
@@ -70,13 +71,34 @@ public class MainActivity extends Activity {
             saveSchedules(); ScheduleReceiver.rescheduleAll(this);
             Toast.makeText(this,"Programações salvas.",Toast.LENGTH_SHORT).show();
         }); root.addView(save);
+        cycleToggle=new Button(this); updateCycleButton(); cycleToggle.setOnClickListener(v->{
+            if(prefs.getBoolean("cycle_enabled",false)) ScheduleReceiver.stopCycle(this); else ScheduleReceiver.startCycle(this);
+            updateCycleButton();
+        }); root.addView(cycleToggle);
         Button stop=new Button(this); stop.setText("PARAR AGORA"); stop.setOnClickListener(v->{
-            Intent i=new Intent(this,PlayerService.class); i.setAction(PlayerService.ACTION_STOP); startService(i);
+            ScheduleReceiver.stopCycle(this); updateCycleButton();
         }); root.addView(stop);
         TextView foot=new TextView(this); foot.setText("Os horários se repetem diariamente. O Android pode solicitar permissão para notificações e alarmes."); foot.setTextSize(12); foot.setPadding(0,16,0,0); root.addView(foot);
         setContentView(root);
     }
 
+    private void updateCycleButton(){ if(cycleToggle!=null) cycleToggle.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); }
+    @Override protected void onResume(){ super.onResume(); updateCycleButton(); }
+    interface ToneChanged { void onChanged(int value); }
+    static class ToneKnob extends View {
+        private final Paint paint=new Paint(3); private final RectF arc=new RectF(); private int value=50; private ToneChanged listener;
+        ToneKnob(Context c){super(c);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
+        void setValue(int v){value=Math.max(0,Math.min(100,v));invalidate();}
+        void setOnValueChanged(ToneChanged l){listener=l;}
+        @Override protected void onDraw(Canvas c){super.onDraw(c);float cx=getWidth()/2f,cy=getHeight()/2f,r=Math.min(cx,cy)-18;arc.set(cx-r,cy-r,cx+r,cy+r);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(13);paint.setStrokeCap(Paint.Cap.ROUND);paint.setColor(0xFFD5DCE5);c.drawArc(arc,135,270,false,paint);
+            paint.setColor(0xFF2474D2);c.drawArc(arc,135,value*2.7f,false,paint);
+            double a=Math.toRadians(135+value*2.7);float px=cx+(float)Math.cos(a)*(r-3),py=cy+(float)Math.sin(a)*(r-3);
+            paint.setStyle(Paint.Style.FILL);paint.setColor(0xFF14213D);c.drawCircle(cx,cy,r-18,paint);paint.setColor(0xFFFFFFFF);c.drawCircle(px,py,9,paint);
+            paint.setTextAlign(Paint.Align.CENTER);paint.setColor(0xFFFFFFFF);paint.setTextSize(34);c.drawText(value+"%",cx,cy+10,paint);paint.setTextSize(12);c.drawText("GROSSURA",cx,cy+35,paint);
+        }
+        @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()==MotionEvent.ACTION_DOWN||e.getAction()==MotionEvent.ACTION_MOVE){float dx=e.getX()-getWidth()/2f,dy=e.getY()-getHeight()/2f;double deg=Math.toDegrees(Math.atan2(dy,dx));double rel=(deg-135+360)%360;if(rel>270)rel=rel<315?270:0;value=Math.max(0,Math.min(100,(int)Math.round(rel/2.7)));invalidate();if(listener!=null)listener.onChanged(value);return true;}return e.getAction()==MotionEvent.ACTION_UP||e.getAction()==MotionEvent.ACTION_CANCEL;}
+    }
     private int parseMinutes(EditText field){try{return Integer.parseInt(field.getText().toString().trim());}catch(Exception e){return -1;}}
     private void updateMusicText(){ musicText.setText(audioUri==null?"Nenhuma música selecionada": "Música selecionada:\n"+audioUri.getLastPathSegment()); }
     @Override protected void onActivityResult(int req,int res,Intent data){
