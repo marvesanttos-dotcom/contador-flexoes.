@@ -64,8 +64,8 @@ public class MainActivity extends Activity {
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
-        TextView heading=new TextView(this); heading.setText("ATÉ DUAS PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
-        TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até dois períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
+        TextView heading=new TextView(this); heading.setText("ATÉ QUATRO PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
+        TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até quatro períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
         startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00 AM"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
         endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("07:00 PM"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
         Button add=new Button(this); add.setText("ADICIONAR HORÁRIO"); add.setOnClickListener(v->addSchedule()); root.addView(add);
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         }
     }
     private void addSchedule(){
-        if(schedules.size()>=2){ Toast.makeText(this,"Você pode cadastrar no máximo duas programações.",Toast.LENGTH_LONG).show(); return; }
+        if(schedules.size()>=4){ Toast.makeText(this,"Você pode cadastrar no máximo quatro programações.",Toast.LENGTH_LONG).show(); return; }
         String a=to24Hour(startField.getText().toString().trim()), b=to24Hour(endField.getText().toString().trim());
         if(a==null||b==null||a.equals(b)){ Toast.makeText(this,"Escolha horários diferentes.",Toast.LENGTH_LONG).show(); return; }
         schedules.add(new Schedule(a,b)); refreshList(); saveSchedules();
@@ -192,6 +192,6 @@ public class MainActivity extends Activity {
         prefs.edit().putString("schedules",arr.toString()).apply();
     }
     private void loadSchedules(){
-        try { JSONArray a=new JSONArray(prefs.getString("schedules","[]")); for(int i=0;i<a.length() && i<2;i++){JSONObject o=a.getJSONObject(i); schedules.add(new Schedule(o.getString("start"),o.getString("end")));} } catch(Exception ignored){}
+        try { JSONArray a=new JSONArray(prefs.getString("schedules","[]")); for(int i=0;i<a.length() && i<4;i++){JSONObject o=a.getJSONObject(i); schedules.add(new Schedule(o.getString("start"),o.getString("end")));} } catch(Exception ignored){}
     }
 }
