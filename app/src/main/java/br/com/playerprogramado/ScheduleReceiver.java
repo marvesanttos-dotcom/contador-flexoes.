@@ -64,7 +64,8 @@ public class ScheduleReceiver extends BroadcastReceiver {
         AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
         long when=SystemClock.elapsedRealtime()+mins*60L*1000L;
         PendingIntent pi=cyclePending(c,action);
-        if(Build.VERSION.SDK_INT>=23)am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,when,pi);
+        if(Build.VERSION.SDK_INT>=31 && !am.canScheduleExactAlarms()) am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,when,pi);
+        else if(Build.VERSION.SDK_INT>=23)am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,when,pi);
         else am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,when,pi);
     }
 
