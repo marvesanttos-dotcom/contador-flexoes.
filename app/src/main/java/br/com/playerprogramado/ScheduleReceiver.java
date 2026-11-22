@@ -28,9 +28,9 @@ public class ScheduleReceiver extends BroadcastReceiver {
             scheduleCycle(context,ACTION_CYCLE_ON,minutes(context,"cycle_off",60));
             return;
         }
-        Intent service=new Intent(context,PlayerService.class);
-        service.setAction(ACTION_START.equals(action)?PlayerService.ACTION_PLAY:PlayerService.ACTION_STOP);
-        if(Build.VERSION.SDK_INT>=26) context.startForegroundService(service); else context.startService(service);
+        // A programação diária agora ativa e desativa o temporizador cíclico.
+        if(ACTION_START.equals(action)) startCycle(context);
+        else stopCycle(context);
         int id=intent.getIntExtra("schedule_id",0);
         if(ACTION_START.equals(action)) scheduleNext(context,id,true);
         else scheduleNext(context,id,false);
