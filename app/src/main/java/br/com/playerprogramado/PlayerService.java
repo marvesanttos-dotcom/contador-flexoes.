@@ -8,7 +8,7 @@ import android.os.*;
 import java.io.IOException;
 
 public class PlayerService extends Service {
-    static final String ACTION_PLAY="PLAY", ACTION_STOP="STOP", ACTION_STOP_AT_END="STOP_AT_END";
+    static final String ACTION_PLAY="PLAY", ACTION_STOP="STOP", ACTION_STOP_AT_END="STOP_AT_END", ACTION_TONE="TONE";
     private boolean stopAtTrackEnd=false;
     private MediaPlayer player;
     private static final String CHANNEL="player_programado";
@@ -18,6 +18,7 @@ public class PlayerService extends Service {
         String action=intent==null?ACTION_STOP:intent.getAction();
         if(ACTION_STOP.equals(action)){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();return START_NOT_STICKY;}
         if(ACTION_STOP_AT_END.equals(action)){if(player==null){stopForeground(true);stopSelf();}else stopAtTrackEnd=true;return START_NOT_STICKY;}
+        if(ACTION_TONE.equals(action)){applyTone();return START_NOT_STICKY;}
         startForeground(1,notification());
         startPlayback();
         return START_STICKY;
@@ -33,10 +34,16 @@ public class PlayerService extends Service {
             player.setLooping(false);
             stopAtTrackEnd=false;
             player.setOnErrorListener((mp,what,extra)->{stopPlayback();stopForeground(true);stopSelf();return true;});
-            player.setOnPreparedListener(MediaPlayer::start);
+            player.setOnPreparedListener(mp->{applyTone();mp.start();});
             player.setOnCompletionListener(mp->{if(stopAtTrackEnd){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();}else{try{mp.seekTo(0);mp.start();}catch(Exception e){stopPlayback();stopForeground(true);stopSelf();}}});
             player.prepareAsync();
         }catch(IOException|RuntimeException e){stopPlayback();stopForeground(true);stopSelf();}
+    }
+    private void applyTone(){
+        if(player==null || Build.VERSION.SDK_INT<23)return;
+        int value=getSharedPreferences("player",MODE_PRIVATE).getInt("tone",50);
+        float pitch=0.5f+(value/100.0f);
+        try{player.setPlaybackParams(player.getPlaybackParams().setPitch(pitch));}catch(Exception ignored){}
     }
     private void stopPlayback(){if(player!=null){try{if(player.isPlaying())player.stop();}catch(Exception ignored){} try{player.release();}catch(Exception ignored){} player=null;}}
     private void createChannel(){
