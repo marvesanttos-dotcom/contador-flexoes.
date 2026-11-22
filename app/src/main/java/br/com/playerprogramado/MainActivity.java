@@ -66,8 +66,8 @@ public class MainActivity extends Activity {
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
         TextView heading=new TextView(this); heading.setText("HORÁRIOS PROGRAMADOS"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
         TextView scheduleHint=new TextView(this); scheduleHint.setText("Escolha quando a música deve ligar e desligar todos os dias."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
-        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Hora de ligar (HH:MM)"); startField.setText("07:00"); startField.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); styleTimeField(startField); root.addView(startField);
-        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Hora de desligar (HH:MM)"); endField.setText("19:00"); endField.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); styleTimeField(endField); root.addView(endField);
+        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
+        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("19:00"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
         Button add=new Button(this); add.setText("ADICIONAR HORÁRIO"); add.setOnClickListener(v->addSchedule()); root.addView(add);
         scheduleList=new LinearLayout(this); scheduleList.setOrientation(LinearLayout.VERTICAL); LinearLayout.LayoutParams scheduleParams=new LinearLayout.LayoutParams(-1,-2); scheduleParams.setMargins(0,8,0,12); root.addView(scheduleList,scheduleParams); refreshList();
         Button save=new Button(this); save.setText("SALVAR PROGRAMAÇÕES"); save.setOnClickListener(v->{
@@ -123,6 +123,17 @@ public class MainActivity extends Activity {
     }
     private GradientDrawable roundedBackground(int color,int radius){
         GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); return d;
+    }
+    private void configureTimePicker(EditText field){
+        field.setFocusable(false);
+        field.setClickable(true);
+        field.setCursorVisible(false);
+        field.setOnClickListener(v->{
+            String[] parts=field.getText().toString().split(":");
+            int hour=7, minute=0;
+            try { hour=Integer.parseInt(parts[0]); minute=Integer.parseInt(parts[1]); } catch(Exception ignored){}
+            new TimePickerDialog(this,(picker,h,m)->field.setText(String.format(Locale.getDefault(),"%02d:%02d",h,m)),hour,minute,true).show();
+        });
     }
     private void styleTimeField(EditText field){
         field.setTextSize(17); field.setTextColor(0xFF14213D); field.setPadding(18,15,18,15);
