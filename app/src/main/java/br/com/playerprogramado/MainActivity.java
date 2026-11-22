@@ -83,7 +83,12 @@ public class MainActivity extends Activity {
             ScheduleReceiver.stopCycle(this); updateCycleButton();
         }); root.addView(stop);
         TextView foot=new TextView(this); foot.setText("Os horários se repetem diariamente. O Android pode solicitar permissão para notificações e alarmes."); foot.setTextSize(12); foot.setPadding(0,16,0,0); root.addView(foot);
-        setContentView(root);
+        ScrollView scroll=new ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setClipToPadding(false);
+        scroll.setVerticalScrollBarEnabled(true);
+        scroll.addView(root,new ScrollView.LayoutParams(-1,-2));
+        setContentView(scroll);
     }
 
     private void updateCycleButton(){ if(cycleToggle!=null) cycleToggle.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); }
