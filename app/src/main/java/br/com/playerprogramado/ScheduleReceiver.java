@@ -28,6 +28,7 @@ public class ScheduleReceiver extends BroadcastReceiver {
             scheduleCycle(context,ACTION_CYCLE_ON,minutes(context,"cycle_off",60));
             return;
         }
+        if(!context.getSharedPreferences("player",Context.MODE_PRIVATE).getBoolean("auto_schedule",true))return;
         // A programação diária agora ativa e desativa o temporizador cíclico.
         if(ACTION_START.equals(action)) startCycle(context);
         else stopCycle(context);
@@ -69,8 +70,21 @@ public class ScheduleReceiver extends BroadcastReceiver {
         else am.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,when,pi);
     }
 
+    static void cancelDailySchedules(Context c){
+        AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        for(int i=0;i<4;i++){
+            am.cancel(dailyPending(c,i*2,ACTION_START));
+            am.cancel(dailyPending(c,i*2+1,ACTION_STOP));
+        }
+    }
+    private static PendingIntent dailyPending(Context c,int id,String action){
+        Intent i=new Intent(c,ScheduleReceiver.class); i.setAction(action); i.putExtra("schedule_id",id/2);
+        return PendingIntent.getBroadcast(c,id+(action.equals(ACTION_STOP)?10000:0),i,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+    }
     static void rescheduleAll(Context c) {
+        cancelDailySchedules(c);
         SharedPreferences p=c.getSharedPreferences("player",Context.MODE_PRIVATE);
+        if(!p.getBoolean("auto_schedule",true))return;
         try {
             JSONArray a=new JSONArray(p.getString("schedules","[]"));
             AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
