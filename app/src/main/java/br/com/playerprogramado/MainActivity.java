@@ -49,9 +49,6 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(24,24,24,24);
         root.setBackgroundColor(0xFF000000);
-        TextView title=new TextView(this);
-        title.setText("PLAYER PROGRAMADO"); title.setTextSize(23); title.setTextColor(0xFFFFFFFF); title.setGravity(Gravity.CENTER);
-        root.addView(title,new LinearLayout.LayoutParams(-1,-2));
         TextView subtitle=new TextView(this); subtitle.setText("Sua música nos horários escolhidos"); subtitle.setGravity(Gravity.CENTER); subtitle.setPadding(0,6,0,18);
         root.addView(subtitle);
         LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(16,12,16,12); timerCard.setBackground(roundedBackground(0xFF0A0A0A,20));
