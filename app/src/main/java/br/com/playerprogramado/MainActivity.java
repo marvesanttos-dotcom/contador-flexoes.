@@ -60,16 +60,16 @@ public class MainActivity extends Activity {
         LinearLayout timerFields=new LinearLayout(this); timerFields.setOrientation(LinearLayout.HORIZONTAL); timerFields.setGravity(Gravity.CENTER_VERTICAL); timerCard.addView(timerFields);
         LinearLayout playingTile=new LinearLayout(this); playingTile.setOrientation(LinearLayout.VERTICAL); playingTile.setGravity(Gravity.CENTER); playingTile.setPadding(4,2,4,2);
         TextView playingLabel=new TextView(this); playingLabel.setText("TOCANDO"); playingLabel.setTextSize(11); playingLabel.setTypeface(null,1); playingLabel.setTextColor(0xFFFFFFFF); playingLabel.setGravity(Gravity.CENTER); playingTile.addView(playingLabel,new LinearLayout.LayoutParams(-1,24));
-        LinearLayout playingBalloon=new LinearLayout(this); playingBalloon.setOrientation(LinearLayout.HORIZONTAL); playingBalloon.setGravity(Gravity.CENTER); playingBalloon.setPadding(8,4,8,4); playingBalloon.setBackground(roundedBackground(0xFF111111,24));
-        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,""); onMinutesField.setTextSize(27); onMinutesField.setTypeface(null,1); onMinutesField.setBackgroundColor(0x00000000); playingBalloon.addView(onMinutesField,new LinearLayout.LayoutParams(0,48,1));
-        TextView onUnit=new TextView(this); onUnit.setText("min"); onUnit.setTextSize(13); onUnit.setTypeface(null,1); onUnit.setTextColor(0xFFFFFFFF); playingBalloon.addView(onUnit); playingTile.addView(playingBalloon,new LinearLayout.LayoutParams(-1,54));
-        timerFields.addView(playingTile,new LinearLayout.LayoutParams(0,82,1));
+        LinearLayout playingBalloon=new LinearLayout(this); playingBalloon.setOrientation(LinearLayout.HORIZONTAL); playingBalloon.setGravity(Gravity.CENTER); playingBalloon.setPadding(10,4,10,4); GradientDrawable playingBg=roundedBackground(0xFF171717,14); playingBg.setStroke(2,0xFFFFFFFF); playingBalloon.setBackground(playingBg);
+        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,""); onMinutesField.setTextSize(34); onMinutesField.setTypeface(null,1); onMinutesField.setTextColor(0xFFFFFFFF); onMinutesField.setBackgroundColor(0x00000000); onMinutesField.setSelectAllOnFocus(true); playingBalloon.addView(onMinutesField,new LinearLayout.LayoutParams(76,56));
+        TextView onUnit=new TextView(this); onUnit.setText("min"); onUnit.setTextSize(13); onUnit.setTypeface(null,1); onUnit.setTextColor(0xFFFFFFFF); playingBalloon.addView(onUnit); playingTile.addView(playingBalloon,new LinearLayout.LayoutParams(-1,64));
+        timerFields.addView(playingTile,new LinearLayout.LayoutParams(0,92,1));
         LinearLayout stoppedTile=new LinearLayout(this); stoppedTile.setOrientation(LinearLayout.VERTICAL); stoppedTile.setGravity(Gravity.CENTER); stoppedTile.setPadding(4,2,4,2);
         TextView stoppedLabel=new TextView(this); stoppedLabel.setText("PARADO"); stoppedLabel.setTextSize(11); stoppedLabel.setTypeface(null,1); stoppedLabel.setTextColor(0xFFFFFFFF); stoppedLabel.setGravity(Gravity.CENTER); stoppedTile.addView(stoppedLabel,new LinearLayout.LayoutParams(-1,24));
-        LinearLayout stoppedBalloon=new LinearLayout(this); stoppedBalloon.setOrientation(LinearLayout.HORIZONTAL); stoppedBalloon.setGravity(Gravity.CENTER); stoppedBalloon.setPadding(8,4,8,4); stoppedBalloon.setBackground(roundedBackground(0xFF111111,24));
-        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,""); offMinutesField.setTextSize(27); offMinutesField.setTypeface(null,1); offMinutesField.setBackgroundColor(0x00000000); stoppedBalloon.addView(offMinutesField,new LinearLayout.LayoutParams(0,48,1));
-        TextView offUnit=new TextView(this); offUnit.setText("min"); offUnit.setTextSize(13); offUnit.setTypeface(null,1); offUnit.setTextColor(0xFFFFFFFF); stoppedBalloon.addView(offUnit); stoppedTile.addView(stoppedBalloon,new LinearLayout.LayoutParams(-1,54));
-        LinearLayout.LayoutParams stoppedParams=new LinearLayout.LayoutParams(0,82,1); stoppedParams.setMargins(10,0,0,0); timerFields.addView(stoppedTile,stoppedParams);
+        LinearLayout stoppedBalloon=new LinearLayout(this); stoppedBalloon.setOrientation(LinearLayout.HORIZONTAL); stoppedBalloon.setGravity(Gravity.CENTER); stoppedBalloon.setPadding(10,4,10,4); GradientDrawable stoppedBg=roundedBackground(0xFF171717,14); stoppedBg.setStroke(2,0xFFFFFFFF); stoppedBalloon.setBackground(stoppedBg);
+        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,""); offMinutesField.setTextSize(34); offMinutesField.setTypeface(null,1); offMinutesField.setTextColor(0xFFFFFFFF); offMinutesField.setBackgroundColor(0x00000000); offMinutesField.setSelectAllOnFocus(true); stoppedBalloon.addView(offMinutesField,new LinearLayout.LayoutParams(76,56));
+        TextView offUnit=new TextView(this); offUnit.setText("min"); offUnit.setTextSize(13); offUnit.setTypeface(null,1); offUnit.setTextColor(0xFFFFFFFF); stoppedBalloon.addView(offUnit); stoppedTile.addView(stoppedBalloon,new LinearLayout.LayoutParams(-1,64));
+        LinearLayout.LayoutParams stoppedParams=new LinearLayout.LayoutParams(0,92,1); stoppedParams.setMargins(10,0,0,0); timerFields.addView(stoppedTile,stoppedParams);
         TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFFFFFFFF); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
         TextView toneHint=new TextView(this); toneHint.setText("Gire o botão: esquerdo mais grosso • 50% neutro • direito mais fino"); root.addView(toneHint);
         ToneKnob toneControl=new ToneKnob(this); toneControl.setValue(prefs.getInt("tone",50)); LinearLayout.LayoutParams knobParams=new LinearLayout.LayoutParams(220,220); knobParams.gravity=Gravity.CENTER; root.addView(toneControl,knobParams);
@@ -115,9 +115,18 @@ public class MainActivity extends Activity {
             t.setTextColor(0xFFFFFFFF);
             if(view instanceof EditText){
                 t.setHintTextColor(0xFFBDBDBD);
-                GradientDrawable bg=roundedBackground(0xFF080808,18);
-                bg.setStroke(2,0xFFFFFFFF);
-                view.setBackground(bg);
+                if(view==onMinutesField || view==offMinutesField){
+                    t.setTextColor(0xFFFFFFFF);
+                    t.setTextSize(34);
+                    t.setTypeface(null,1);
+                    t.setGravity(Gravity.CENTER);
+                    t.setPadding(0,0,0,0);
+                    view.setBackgroundColor(0x00000000);
+                } else {
+                    GradientDrawable bg=roundedBackground(0xFF080808,18);
+                    bg.setStroke(2,0xFFFFFFFF);
+                    view.setBackground(bg);
+                }
             } else if(view instanceof Button){
                 GradientDrawable bg=roundedBackground(0xFF080808,22);
                 bg.setStroke(2,0xFFFFFFFF);
