@@ -39,11 +39,36 @@ public class MainActivity extends Activity {
         if(!saved.isEmpty()) audioUri=Uri.parse(saved);
         loadSchedules();
         buildScreen();
+        requestBatteryExemptionIfNeeded();
         ScheduleReceiver.rescheduleAll(this);
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 21);
     }
 
+    private void requestBatteryExemptionIfNeeded(){
+        if(Build.VERSION.SDK_INT>=23){
+            android.os.PowerManager pm=(android.os.PowerManager)getSystemService(POWER_SERVICE);
+            if(!pm.isIgnoringBatteryOptimizations(getPackageName())){
+                new AlertDialog.Builder(this)
+                    .setTitle("Permitir execução em segundo plano")
+                    .setMessage("Para manter a música e as programações funcionando com a tela apagada, permita que o Player Programado não seja limitado pela otimização de bateria.")
+                    .setPositiveButton("CONTINUAR",(d,w)->openBatterySettings())
+                    .setNegativeButton("AGORA NÃO",null).show();
+            }
+        }
+    }
+    private void openBatterySettings(){
+        if(Build.VERSION.SDK_INT>=23){
+            try{
+                Intent i=new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                i.setData(Uri.parse("package:"+getPackageName()));
+                startActivity(i);
+            }catch(Exception e){
+                try{startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));}
+                catch(Exception ignored){Toast.makeText(this,"Abra as configurações de bateria do Android e permita atividade em segundo plano.",Toast.LENGTH_LONG).show();}
+            }
+        }
+    }
     private void buildScreen() {
         LinearLayout root=new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
