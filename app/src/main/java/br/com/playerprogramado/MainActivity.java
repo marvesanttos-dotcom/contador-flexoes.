@@ -21,7 +21,8 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private Uri audioUri;
     private EditText startField, endField, onMinutesField, offMinutesField;
-    private TextView musicText, listText;\n    private Button cycleToggle;
+    private TextView musicText, listText;
+    private Button cycleToggle;
 
     static class Schedule {
         String start, end;
