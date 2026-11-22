@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.MotionEvent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -47,16 +48,16 @@ public class MainActivity extends Activity {
         LinearLayout root=new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(24,24,24,24);
-        root.setBackgroundColor(0xFFF3F5F8);
+        root.setBackgroundColor(0xFF000000);
         TextView title=new TextView(this);
-        title.setText("PLAYER PROGRAMADO"); title.setTextSize(23); title.setTextColor(0xFF14213D); title.setGravity(Gravity.CENTER);
+        title.setText("PLAYER PROGRAMADO"); title.setTextSize(23); title.setTextColor(0xFFFFD700); title.setGravity(Gravity.CENTER);
         root.addView(title,new LinearLayout.LayoutParams(-1,-2));
         TextView subtitle=new TextView(this); subtitle.setText("Sua música nos horários escolhidos"); subtitle.setGravity(Gravity.CENTER); subtitle.setPadding(0,6,0,18);
         root.addView(subtitle);
-        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR CICLICO (1 A 250 MINUTOS)"); timerTitle.setTextSize(18); timerTitle.setTextColor(0xFF14213D); timerTitle.setPadding(0,8,0,4); root.addView(timerTitle);
+        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR CICLICO (1 A 250 MINUTOS)"); timerTitle.setTextSize(18); timerTitle.setTextColor(0xFFFFD700); timerTitle.setPadding(0,8,0,4); root.addView(timerTitle);
         onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
         offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
-        TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFF14213D); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
+        TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFFFFD700); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
         TextView toneHint=new TextView(this); toneHint.setText("Gire o botão: esquerdo mais grosso • 50% neutro • direito mais fino"); root.addView(toneHint);
         ToneKnob toneControl=new ToneKnob(this); toneControl.setValue(prefs.getInt("tone",50)); LinearLayout.LayoutParams knobParams=new LinearLayout.LayoutParams(220,220); knobParams.gravity=Gravity.CENTER; root.addView(toneControl,knobParams);
         toneControl.setOnValueChanged(value->{ prefs.edit().putInt("tone",value).apply(); Intent i=new Intent(MainActivity.this,PlayerService.class); i.setAction(PlayerService.ACTION_TONE); startService(i); });
@@ -64,8 +65,8 @@ public class MainActivity extends Activity {
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
-        TextView heading=new TextView(this); heading.setText("ATÉ QUATRO PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
-        TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até quatro períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
+        TextView heading=new TextView(this); heading.setText("ATÉ QUATRO PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFFFFD700); heading.setPadding(0,20,0,8); root.addView(heading);
+        TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até quatro períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFFE0B84F); scheduleHint.setTextSize(13); root.addView(scheduleHint);
         startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00 AM"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
         endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("07:00 PM"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
         Button add=new Button(this); add.setText("ADICIONAR HORÁRIO"); add.setOnClickListener(v->addSchedule()); root.addView(add);
@@ -88,7 +89,33 @@ public class MainActivity extends Activity {
         scroll.setClipToPadding(false);
         scroll.setVerticalScrollBarEnabled(true);
         scroll.addView(root,new ScrollView.LayoutParams(-1,-2));
+        styleAmoled(root);
+        getWindow().getDecorView().setBackgroundColor(0xFF000000);
         setContentView(scroll);
+    }
+
+
+    private void styleAmoled(View view){
+        if(view instanceof TextView){
+            TextView t=(TextView)view;
+            t.setTextColor(0xFFFFD700);
+            if(view instanceof EditText){
+                t.setHintTextColor(0xFF9B812F);
+                GradientDrawable bg=roundedBackground(0xFF080808,18);
+                bg.setStroke(2,0xFFB8860B);
+                view.setBackground(bg);
+            } else if(view instanceof Button){
+                GradientDrawable bg=roundedBackground(0xFF080808,22);
+                bg.setStroke(2,0xFFFFD700);
+                view.setBackground(bg);
+                t.setTextColor(0xFFFFD700);
+                t.setAllCaps(false);
+            }
+        }
+        if(view instanceof ViewGroup){
+            ViewGroup group=(ViewGroup)view;
+            for(int i=0;i<group.getChildCount();i++) styleAmoled(group.getChildAt(i));
+        }
     }
 
     private void updateCycleButton(){ if(cycleToggle!=null) cycleToggle.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); }
@@ -100,11 +127,11 @@ public class MainActivity extends Activity {
         void setValue(int v){value=Math.max(0,Math.min(100,v));invalidate();}
         void setOnValueChanged(ToneChanged l){listener=l;}
         @Override protected void onDraw(Canvas c){super.onDraw(c);float cx=getWidth()/2f,cy=getHeight()/2f,r=Math.min(cx,cy)-18;arc.set(cx-r,cy-r,cx+r,cy+r);
-            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(13);paint.setStrokeCap(Paint.Cap.ROUND);paint.setColor(0xFFD5DCE5);c.drawArc(arc,135,270,false,paint);
-            paint.setColor(0xFF2474D2);c.drawArc(arc,135,value*2.7f,false,paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(13);paint.setStrokeCap(Paint.Cap.ROUND);paint.setColor(0xFF66521A);c.drawArc(arc,135,270,false,paint);
+            paint.setColor(0xFFFFC700);c.drawArc(arc,135,value*2.7f,false,paint);
             double a=Math.toRadians(135+value*2.7);float px=cx+(float)Math.cos(a)*(r-3),py=cy+(float)Math.sin(a)*(r-3);
-            paint.setStyle(Paint.Style.FILL);paint.setColor(0xFF14213D);c.drawCircle(cx,cy,r-18,paint);paint.setColor(0xFFFFFFFF);c.drawCircle(px,py,9,paint);
-            paint.setTextAlign(Paint.Align.CENTER);paint.setColor(0xFFFFFFFF);paint.setTextSize(34);c.drawText(value+"%",cx,cy+10,paint);paint.setTextSize(12);c.drawText("GROSSURA",cx,cy+35,paint);
+            paint.setStyle(Paint.Style.FILL);paint.setColor(0xFF080808);c.drawCircle(cx,cy,r-18,paint);paint.setColor(0xFFFFD700);c.drawCircle(px,py,9,paint);
+            paint.setTextAlign(Paint.Align.CENTER);paint.setColor(0xFF0D0D0D);paint.setTextSize(34);c.drawText(value+"%",cx,cy+10,paint);paint.setTextSize(12);c.drawText("GROSSURA",cx,cy+35,paint);
         }
         @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()==MotionEvent.ACTION_DOWN||e.getAction()==MotionEvent.ACTION_MOVE){float dx=e.getX()-getWidth()/2f,dy=e.getY()-getHeight()/2f;double deg=Math.toDegrees(Math.atan2(dy,dx));double rel=(deg-135+360)%360;if(rel>270)rel=rel<315?270:0;value=Math.max(0,Math.min(100,(int)Math.round(rel/2.7)));invalidate();if(listener!=null)listener.onChanged(value);return true;}return e.getAction()==MotionEvent.ACTION_UP||e.getAction()==MotionEvent.ACTION_CANCEL;}
     }
@@ -160,27 +187,27 @@ public class MainActivity extends Activity {
         }catch(Exception e){return value;}
     }
     private void styleTimeField(EditText field){
-        field.setTextSize(17); field.setTextColor(0xFF14213D); field.setPadding(18,15,18,15);
-        field.setBackground(roundedBackground(0xFFFFFFFF,18));
+        field.setTextSize(17); field.setTextColor(0xFFFFD700); field.setPadding(18,15,18,15);
+        field.setBackground(roundedBackground(0xFF0D0D0D,18));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2); p.setMargins(0,7,0,7); field.setLayoutParams(p);
     }
     private void refreshList(){
         scheduleList.removeAllViews();
         if(schedules.isEmpty()){
             TextView empty=new TextView(this); empty.setText("Ainda não há horários.\nAdicione seu primeiro período acima.");
-            empty.setTextColor(0xFF758195); empty.setTextSize(14); empty.setGravity(Gravity.CENTER);
-            empty.setPadding(16,22,16,22); empty.setBackground(roundedBackground(0xFFFFFFFF,18)); scheduleList.addView(empty); return;
+            empty.setTextColor(0xFFE0B84F); empty.setTextSize(14); empty.setGravity(Gravity.CENTER);
+            empty.setPadding(16,22,16,22); empty.setBackground(roundedBackground(0xFF0D0D0D,18)); scheduleList.addView(empty); return;
         }
         for(int i=0;i<schedules.size();i++){
             final int index=i; Schedule s=schedules.get(i);
             LinearLayout card=new LinearLayout(this); card.setOrientation(LinearLayout.HORIZONTAL); card.setGravity(Gravity.CENTER_VERTICAL);
-            card.setPadding(16,14,10,14); card.setBackground(roundedBackground(0xFFFFFFFF,18));
+            card.setPadding(16,14,10,14); card.setBackground(roundedBackground(0xFF0D0D0D,18));
             LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,5,0,5); scheduleList.addView(card,cp);
             LinearLayout times=new LinearLayout(this); times.setOrientation(LinearLayout.VERTICAL);
-            TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFF2474D2);
-            TextView range=new TextView(this); range.setText("Ligar  "+format12Hour(s.start)+"     •     Desligar  "+format12Hour(s.end)); range.setTextSize(15); range.setTextColor(0xFF14213D); range.setPadding(0,5,0,0);
+            TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFFFFC700);
+            TextView range=new TextView(this); range.setText("Ligar  "+format12Hour(s.start)+"     •     Desligar  "+format12Hour(s.end)); range.setTextSize(15); range.setTextColor(0xFFFFD700); range.setPadding(0,5,0,0);
             times.addView(status); times.addView(range); card.addView(times,new LinearLayout.LayoutParams(0,-2,1));
-            Button remove=new Button(this); remove.setText("×"); remove.setTextSize(22); remove.setTextColor(0xFFB42318);
+            Button remove=new Button(this); remove.setText("×"); remove.setTextSize(22); remove.setTextColor(0xFFFFD700);
             remove.setMinWidth(44); remove.setMinimumWidth(44); remove.setPadding(0,0,0,0);
             card.addView(remove,new LinearLayout.LayoutParams(48,48));
             remove.setOnClickListener(v->{ schedules.remove(index); refreshList(); saveSchedules(); });
