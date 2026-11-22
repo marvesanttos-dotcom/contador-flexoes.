@@ -66,8 +66,8 @@ public class MainActivity extends Activity {
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
         TextView heading=new TextView(this); heading.setText("ATÉ DUAS PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
         TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até dois períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
-        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
-        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("19:00"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
+        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00 AM"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
+        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("07:00 PM"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
         Button add=new Button(this); add.setText("ADICIONAR HORÁRIO"); add.setOnClickListener(v->addSchedule()); root.addView(add);
         scheduleList=new LinearLayout(this); scheduleList.setOrientation(LinearLayout.VERTICAL); LinearLayout.LayoutParams scheduleParams=new LinearLayout.LayoutParams(-1,-2); scheduleParams.setMargins(0,8,0,12); root.addView(scheduleList,scheduleParams); refreshList();
         Button save=new Button(this); save.setText("SALVAR PROGRAMAÇÕES"); save.setOnClickListener(v->{
@@ -120,8 +120,8 @@ public class MainActivity extends Activity {
     }
     private void addSchedule(){
         if(schedules.size()>=2){ Toast.makeText(this,"Você pode cadastrar no máximo duas programações.",Toast.LENGTH_LONG).show(); return; }
-        String a=startField.getText().toString().trim(), b=endField.getText().toString().trim();
-        if(!validTime(a)||!validTime(b)||a.equals(b)){ Toast.makeText(this,"Digite horários diferentes no formato HH:MM.",Toast.LENGTH_LONG).show(); return; }
+        String a=to24Hour(startField.getText().toString().trim()), b=to24Hour(endField.getText().toString().trim());
+        if(a==null||b==null||a.equals(b)){ Toast.makeText(this,"Escolha horários diferentes.",Toast.LENGTH_LONG).show(); return; }
         schedules.add(new Schedule(a,b)); refreshList(); saveSchedules();
     }
     private boolean validTime(String s){
@@ -135,11 +135,29 @@ public class MainActivity extends Activity {
         field.setClickable(true);
         field.setCursorVisible(false);
         field.setOnClickListener(v->{
-            String[] parts=field.getText().toString().split(":");
+            String raw=to24Hour(field.getText().toString());
             int hour=7, minute=0;
-            try { hour=Integer.parseInt(parts[0]); minute=Integer.parseInt(parts[1]); } catch(Exception ignored){}
-            new TimePickerDialog(this,(picker,h,m)->field.setText(String.format(Locale.getDefault(),"%02d:%02d",h,m)),hour,minute,true).show();
+            try { String[] parts=raw.split(":"); hour=Integer.parseInt(parts[0]); minute=Integer.parseInt(parts[1]); } catch(Exception ignored){}
+            new TimePickerDialog(this,(picker,h,m)->field.setText(format12Hour(String.format(Locale.US,"%02d:%02d",h,m))),hour,minute,false).show();
         });
+    }
+    private String to24Hour(String value){
+        try {
+            String[] p=value.trim().toUpperCase(Locale.US).split("\\s+");
+            String[] hm=p[0].split(":");
+            if(hm.length!=2||p.length!=2)return null;
+            int h=Integer.parseInt(hm[0]),m=Integer.parseInt(hm[1]);
+            if(h<1||h>12||m<0||m>59||(!p[1].equals("AM")&&!p[1].equals("PM")))return null;
+            if(p[1].equals("AM")){if(h==12)h=0;}else if(h!=12)h+=12;
+            return String.format(Locale.US,"%02d:%02d",h,m);
+        }catch(Exception e){return null;}
+    }
+    private String format12Hour(String value){
+        try{
+            String[] p=value.split(":"); int h=Integer.parseInt(p[0]),m=Integer.parseInt(p[1]);
+            String suffix=h<12?"AM":"PM"; int h12=h%12; if(h12==0)h12=12;
+            return String.format(Locale.US,"%02d:%02d %s",h12,m,suffix);
+        }catch(Exception e){return value;}
     }
     private void styleTimeField(EditText field){
         field.setTextSize(17); field.setTextColor(0xFF14213D); field.setPadding(18,15,18,15);
@@ -160,7 +178,7 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,5,0,5); scheduleList.addView(card,cp);
             LinearLayout times=new LinearLayout(this); times.setOrientation(LinearLayout.VERTICAL);
             TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFF2474D2);
-            TextView range=new TextView(this); range.setText("Ligar  "+s.start+"     •     Desligar  "+s.end); range.setTextSize(15); range.setTextColor(0xFF14213D); range.setPadding(0,5,0,0);
+            TextView range=new TextView(this); range.setText("Ligar  "+format12Hour(s.start)+"     •     Desligar  "+format12Hour(s.end)); range.setTextSize(15); range.setTextColor(0xFF14213D); range.setPadding(0,5,0,0);
             times.addView(status); times.addView(range); card.addView(times,new LinearLayout.LayoutParams(0,-2,1));
             Button remove=new Button(this); remove.setText("×"); remove.setTextSize(22); remove.setTextColor(0xFFB42318);
             remove.setMinWidth(44); remove.setMinimumWidth(44); remove.setPadding(0,0,0,0);
