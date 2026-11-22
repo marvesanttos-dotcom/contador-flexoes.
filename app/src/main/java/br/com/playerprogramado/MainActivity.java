@@ -49,14 +49,7 @@ public class MainActivity extends Activity {
         onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
         offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
         timerStatus=new TextView(this); timerStatus.setPadding(0,4,0,4); root.addView(timerStatus);
-        Button cycleButton=new Button(this); cycleButton.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); cycleButton.setOnClickListener(v->{
-            int on=parseMinutes(onMinutesField), off=parseMinutes(offMinutesField);
-            if(on<1||on>250||off<1||off>250){Toast.makeText(this,"Use valores de 1 a 250 minutos.",Toast.LENGTH_LONG).show();return;}
-            prefs.edit().putInt("cycle_on",on).putInt("cycle_off",off).apply();
-            if(prefs.getBoolean("cycle_enabled",false)){ScheduleReceiver.stopCycle(this);cycleButton.setText("ATIVAR TEMPORIZADOR");timerStatus.setText("Temporizador desativado.");}
-            else {if(audioUri==null){Toast.makeText(this,"Escolha uma música primeiro.",Toast.LENGTH_LONG).show();return;}ScheduleReceiver.startCycle(this);cycleButton.setText("DESATIVAR TEMPORIZADOR");timerStatus.setText("Temporizador ativo: "+on+" min ligado / "+off+" min desligado.");}
-        }); root.addView(cycleButton);
-        timerStatus.setText(prefs.getBoolean("cycle_enabled",false)?"Temporizador ativo.":"Temporizador desativado.");
+        timerStatus.setText("O temporizador será ativado e desativado automaticamente pelos horários programados.");
         Button pick=new Button(this); pick.setText("ESCOLHER MÚSICA"); pick.setOnClickListener(v->{
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
