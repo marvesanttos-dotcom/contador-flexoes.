@@ -54,12 +54,12 @@ public class MainActivity extends Activity {
         root.addView(title,new LinearLayout.LayoutParams(-1,-2));
         TextView subtitle=new TextView(this); subtitle.setText("Sua música nos horários escolhidos"); subtitle.setGravity(Gravity.CENTER); subtitle.setPadding(0,6,0,18);
         root.addView(subtitle);
-        LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(14,10,14,10); timerCard.setBackground(roundedBackground(0xFF0A0A0A,16));
+        LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(16,12,16,12); timerCard.setBackground(roundedBackground(0xFF0A0A0A,20));
         LinearLayout.LayoutParams timerCardParams=new LinearLayout.LayoutParams(-1,-2); timerCardParams.setMargins(0,8,0,8); root.addView(timerCard,timerCardParams);
-        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFFFFFFFF); timerTitle.setPadding(2,0,0,6); timerCard.addView(timerTitle);
+        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFFFFFFFF); timerTitle.setPadding(2,0,0,8); timerCard.addView(timerTitle);
         LinearLayout timerFields=new LinearLayout(this); timerFields.setOrientation(LinearLayout.HORIZONTAL); timerFields.setGravity(Gravity.CENTER_VERTICAL); timerCard.addView(timerFields);
-        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,"Ligado (min)"); timerFields.addView(onMinutesField,new LinearLayout.LayoutParams(0,48,1));
-        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,"Pausa (min)"); LinearLayout.LayoutParams offParams=new LinearLayout.LayoutParams(0,48,1); offParams.setMargins(8,0,0,0); timerFields.addView(offMinutesField,offParams);
+        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,"Ligado (min)"); timerFields.addView(onMinutesField,new LinearLayout.LayoutParams(0,44,1));
+        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,"Pausa (min)"); LinearLayout.LayoutParams offParams=new LinearLayout.LayoutParams(0,44,1); offParams.setMargins(8,0,0,0); timerFields.addView(offMinutesField,offParams);
         TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFFFFFFFF); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
         TextView toneHint=new TextView(this); toneHint.setText("Gire o botão: esquerdo mais grosso • 50% neutro • direito mais fino"); root.addView(toneHint);
         ToneKnob toneControl=new ToneKnob(this); toneControl.setValue(prefs.getInt("tone",50)); LinearLayout.LayoutParams knobParams=new LinearLayout.LayoutParams(220,220); knobParams.gravity=Gravity.CENTER; root.addView(toneControl,knobParams);
@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
     private void styleMinuteField(EditText field,String hint){
         field.setHint(hint); field.setTextSize(14); field.setTextColor(0xFFFFFFFF); field.setHintTextColor(0xFF999999);
         field.setGravity(Gravity.CENTER); field.setPadding(8,4,8,4);
-        GradientDrawable bg=roundedBackground(0xFF111111,12); bg.setStroke(1,0xFF555555); field.setBackground(bg);
+        GradientDrawable bg=roundedBackground(0xFF111111,10); bg.setStroke(1,0xFF666666); field.setBackground(bg);
     }
     private void styleTimeField(EditText field){
         field.setTextSize(17); field.setTextColor(0xFFFFFFFF); field.setPadding(18,15,18,15);
