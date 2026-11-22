@@ -11,9 +11,30 @@ public class PlayerService extends Service {
     static final String ACTION_PLAY="PLAY", ACTION_STOP="STOP", ACTION_STOP_AT_END="STOP_AT_END", ACTION_TONE="TONE";
     private boolean stopAtTrackEnd=false;
     private MediaPlayer player;
+    private AudioManager audioManager;
+    private AudioFocusRequest focusRequest;
+    private final AudioManager.OnAudioFocusChangeListener focusListener = change -> {
+        // Mantém a reprodução durante alertas e notificações breves.
+    };
     private static final String CHANNEL="player_programado";
 
-    @Override public void onCreate(){super.onCreate();createChannel();}
+    @Override public void onCreate(){super.onCreate();audioManager=(AudioManager)getSystemService(AUDIO_SERVICE);createChannel();}
+    private void requestAudioFocus(){
+        if(audioManager==null)return;
+        if(Build.VERSION.SDK_INT>=26){
+            focusRequest=new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                .setOnAudioFocusChangeListener(focusListener).setWillPauseWhenDucked(false).build();
+            audioManager.requestAudioFocus(focusRequest);
+        }else{
+            audioManager.requestAudioFocus(focusListener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
+        }
+    }
+    private void abandonAudioFocus(){
+        if(audioManager==null)return;
+        if(Build.VERSION.SDK_INT>=26 && focusRequest!=null)audioManager.abandonAudioFocusRequest(focusRequest);
+        else audioManager.abandonAudioFocus(focusListener);
+    }
     @Override public int onStartCommand(Intent intent,int flags,int startId){
         String action=intent==null?ACTION_STOP:intent.getAction();
         if(ACTION_STOP.equals(action)){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();return START_NOT_STICKY;}
@@ -25,6 +46,7 @@ public class PlayerService extends Service {
     }
     private void startPlayback(){
         stopPlayback();
+        requestAudioFocus();
         String raw=getSharedPreferences("player",MODE_PRIVATE).getString("audio","");
         if(raw.isEmpty()){stopForeground(true);stopSelf();return;}
         try{
@@ -45,7 +67,7 @@ public class PlayerService extends Service {
         float pitch=0.5f+(value/100.0f);
         try{player.setPlaybackParams(player.getPlaybackParams().setPitch(pitch));}catch(Exception ignored){}
     }
-    private void stopPlayback(){if(player!=null){try{if(player.isPlaying())player.stop();}catch(Exception ignored){} try{player.release();}catch(Exception ignored){} player=null;}}
+    private void stopPlayback(){if(player!=null){try{if(player.isPlaying())player.stop();}catch(Exception ignored){} try{player.release();}catch(Exception ignored){} player=null;} abandonAudioFocus();}
     private void createChannel(){
         if(Build.VERSION.SDK_INT>=26){NotificationChannel ch=new NotificationChannel(CHANNEL,"Player Programado",NotificationManager.IMPORTANCE_LOW);((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(ch);}
     }
