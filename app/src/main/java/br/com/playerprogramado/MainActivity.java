@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.*;
 import java.util.*;
 import org.json.*;
@@ -21,7 +22,8 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private Uri audioUri;
     private EditText startField, endField, onMinutesField, offMinutesField;
-    private TextView musicText, listText;
+    private TextView musicText;
+    private LinearLayout scheduleList;
     private Button cycleToggle;
 
     static class Schedule {
@@ -62,11 +64,12 @@ public class MainActivity extends Activity {
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
-        TextView heading=new TextView(this); heading.setText("PROGRAMAÇÃO DIÁRIA"); heading.setTextSize(18); heading.setTextColor(0xFF14213D); root.addView(heading);
-        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Hora de ligar (HH:MM)"); startField.setText("07:00"); startField.setInputType( android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); root.addView(startField);
-        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Hora de desligar (HH:MM)"); endField.setText("19:00"); endField.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); root.addView(endField);
+        TextView heading=new TextView(this); heading.setText("HORÁRIOS PROGRAMADOS"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF14213D); heading.setPadding(0,20,0,8); root.addView(heading);
+        TextView scheduleHint=new TextView(this); scheduleHint.setText("Escolha quando a música deve ligar e desligar todos os dias."); scheduleHint.setTextColor(0xFF687386); scheduleHint.setTextSize(13); root.addView(scheduleHint);
+        startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Hora de ligar (HH:MM)"); startField.setText("07:00"); startField.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); styleTimeField(startField); root.addView(startField);
+        endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Hora de desligar (HH:MM)"); endField.setText("19:00"); endField.setInputType(android.text.InputType.TYPE_CLASS_DATETIME | android.text.InputType.TYPE_DATETIME_VARIATION_TIME); styleTimeField(endField); root.addView(endField);
         Button add=new Button(this); add.setText("ADICIONAR HORÁRIO"); add.setOnClickListener(v->addSchedule()); root.addView(add);
-        listText=new TextView(this); listText.setTextColor(0xFF263238); listText.setPadding(0,14,0,14); root.addView(listText); refreshList();
+        scheduleList=new LinearLayout(this); scheduleList.setOrientation(LinearLayout.VERTICAL); LinearLayout.LayoutParams scheduleParams=new LinearLayout.LayoutParams(-1,-2); scheduleParams.setMargins(0,8,0,12); root.addView(scheduleList,scheduleParams); refreshList();
         Button save=new Button(this); save.setText("SALVAR PROGRAMAÇÕES"); save.setOnClickListener(v->{
             if(audioUri==null){ Toast.makeText(this,"Escolha uma música primeiro.",Toast.LENGTH_LONG).show(); return; }
             saveSchedules(); ScheduleReceiver.rescheduleAll(this);
@@ -118,15 +121,35 @@ public class MainActivity extends Activity {
     private boolean validTime(String s){
         try { String[] p=s.split(":"); if(p.length!=2)return false; int h=Integer.parseInt(p[0]),m=Integer.parseInt(p[1]); return h>=0&&h<24&&m>=0&&m<60; } catch(Exception e){return false;}
     }
+    private GradientDrawable roundedBackground(int color,int radius){
+        GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); return d;
+    }
+    private void styleTimeField(EditText field){
+        field.setTextSize(17); field.setTextColor(0xFF14213D); field.setPadding(18,15,18,15);
+        field.setBackground(roundedBackground(0xFFFFFFFF,18));
+        LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2); p.setMargins(0,7,0,7); field.setLayoutParams(p);
+    }
     private void refreshList(){
-        StringBuilder b=new StringBuilder();
-        for(int i=0;i<schedules.size();i++){
-            Schedule s=schedules.get(i);
-            b.append(i+1).append(") Ligar ").append(s.start).append("  •  Desligar ").append(s.end).append("\n");
+        scheduleList.removeAllViews();
+        if(schedules.isEmpty()){
+            TextView empty=new TextView(this); empty.setText("Ainda não há horários.\nAdicione seu primeiro período acima.");
+            empty.setTextColor(0xFF758195); empty.setTextSize(14); empty.setGravity(Gravity.CENTER);
+            empty.setPadding(16,22,16,22); empty.setBackground(roundedBackground(0xFFFFFFFF,18)); scheduleList.addView(empty); return;
         }
-        if(schedules.isEmpty()) b.append("Nenhum horário cadastrado.");
-        listText.setText(b.toString());
-        listText.setOnLongClickListener(v->{ if(!schedules.isEmpty()){schedules.remove(schedules.size()-1);refreshList();saveSchedules();return true;}return false;});
+        for(int i=0;i<schedules.size();i++){
+            final int index=i; Schedule s=schedules.get(i);
+            LinearLayout card=new LinearLayout(this); card.setOrientation(LinearLayout.HORIZONTAL); card.setGravity(Gravity.CENTER_VERTICAL);
+            card.setPadding(16,14,10,14); card.setBackground(roundedBackground(0xFFFFFFFF,18));
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,5,0,5); scheduleList.addView(card,cp);
+            LinearLayout times=new LinearLayout(this); times.setOrientation(LinearLayout.VERTICAL);
+            TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFF2474D2);
+            TextView range=new TextView(this); range.setText("Ligar  "+s.start+"     •     Desligar  "+s.end); range.setTextSize(15); range.setTextColor(0xFF14213D); range.setPadding(0,5,0,0);
+            times.addView(status); times.addView(range); card.addView(times,new LinearLayout.LayoutParams(0,-2,1));
+            Button remove=new Button(this); remove.setText("×"); remove.setTextSize(22); remove.setTextColor(0xFFB42318);
+            remove.setMinWidth(44); remove.setMinimumWidth(44); remove.setPadding(0,0,0,0);
+            card.addView(remove,new LinearLayout.LayoutParams(48,48));
+            remove.setOnClickListener(v->{ schedules.remove(index); refreshList(); saveSchedules(); });
+        }
     }
     private void saveSchedules(){
         JSONArray arr=new JSONArray();
