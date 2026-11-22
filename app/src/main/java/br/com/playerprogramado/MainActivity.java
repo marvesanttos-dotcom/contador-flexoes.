@@ -54,9 +54,12 @@ public class MainActivity extends Activity {
         root.addView(title,new LinearLayout.LayoutParams(-1,-2));
         TextView subtitle=new TextView(this); subtitle.setText("Sua música nos horários escolhidos"); subtitle.setGravity(Gravity.CENTER); subtitle.setPadding(0,6,0,18);
         root.addView(subtitle);
-        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR CICLICO (1 A 250 MINUTOS)"); timerTitle.setTextSize(18); timerTitle.setTextColor(0xFFFFFFFF); timerTitle.setPadding(0,8,0,4); root.addView(timerTitle);
-        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
-        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
+        LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(14,10,14,10); timerCard.setBackground(roundedBackground(0xFF0A0A0A,16));
+        LinearLayout.LayoutParams timerCardParams=new LinearLayout.LayoutParams(-1,-2); timerCardParams.setMargins(0,8,0,8); root.addView(timerCard,timerCardParams);
+        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFFFFFFFF); timerTitle.setPadding(2,0,0,6); timerCard.addView(timerTitle);
+        LinearLayout timerFields=new LinearLayout(this); timerFields.setOrientation(LinearLayout.HORIZONTAL); timerFields.setGravity(Gravity.CENTER_VERTICAL); timerCard.addView(timerFields);
+        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,"Ligado (min)"); timerFields.addView(onMinutesField,new LinearLayout.LayoutParams(0,48,1));
+        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,"Pausa (min)"); LinearLayout.LayoutParams offParams=new LinearLayout.LayoutParams(0,48,1); offParams.setMargins(8,0,0,0); timerFields.addView(offMinutesField,offParams);
         TextView toneTitle=new TextView(this); toneTitle.setText("GROSSURA DO ÁUDIO"); toneTitle.setTextSize(18); toneTitle.setTextColor(0xFFFFFFFF); toneTitle.setPadding(0,12,0,2); root.addView(toneTitle);
         TextView toneHint=new TextView(this); toneHint.setText("Gire o botão: esquerdo mais grosso • 50% neutro • direito mais fino"); root.addView(toneHint);
         ToneKnob toneControl=new ToneKnob(this); toneControl.setValue(prefs.getInt("tone",50)); LinearLayout.LayoutParams knobParams=new LinearLayout.LayoutParams(220,220); knobParams.gravity=Gravity.CENTER; root.addView(toneControl,knobParams);
@@ -76,13 +79,14 @@ public class MainActivity extends Activity {
             saveSchedules(); ScheduleReceiver.rescheduleAll(this);
             Toast.makeText(this,"Programações salvas.",Toast.LENGTH_SHORT).show();
         }); root.addView(save);
-        cycleToggle=new Button(this); updateCycleButton(); cycleToggle.setOnClickListener(v->{
+        LinearLayout timerActions=new LinearLayout(this); timerActions.setOrientation(LinearLayout.HORIZONTAL); timerActions.setGravity(Gravity.CENTER_VERTICAL); LinearLayout.LayoutParams actionParams=new LinearLayout.LayoutParams(-1,-2); actionParams.setMargins(0,8,0,4); root.addView(timerActions,actionParams);
+        cycleToggle=new Button(this); updateCycleButton(); cycleToggle.setTextSize(12); cycleToggle.setMinHeight(44); cycleToggle.setPadding(6,0,6,0); cycleToggle.setOnClickListener(v->{
             if(prefs.getBoolean("cycle_enabled",false)) ScheduleReceiver.stopCycle(this); else ScheduleReceiver.startCycle(this);
             updateCycleButton();
-        }); root.addView(cycleToggle);
-        Button stop=new Button(this); stop.setText("PARAR AGORA"); stop.setOnClickListener(v->{
+        }); timerActions.addView(cycleToggle,new LinearLayout.LayoutParams(0,48,1));
+        Button stop=new Button(this); stop.setText("PARAR"); stop.setTextSize(12); stop.setMinHeight(44); stop.setPadding(6,0,6,0); stop.setOnClickListener(v->{
             ScheduleReceiver.stopCycle(this); updateCycleButton();
-        }); root.addView(stop);
+        }); LinearLayout.LayoutParams stopParams=new LinearLayout.LayoutParams(0,48,1); stopParams.setMargins(8,0,0,0); timerActions.addView(stop,stopParams);
         TextView foot=new TextView(this); foot.setText("Os horários se repetem diariamente. O Android pode solicitar permissão para notificações e alarmes."); foot.setTextSize(12); foot.setPadding(0,16,0,0); root.addView(foot);
         ScrollView scroll=new ScrollView(this);
         scroll.setFillViewport(true);
@@ -185,6 +189,11 @@ public class MainActivity extends Activity {
             String suffix=h<12?"AM":"PM"; int h12=h%12; if(h12==0)h12=12;
             return String.format(Locale.US,"%02d:%02d %s",h12,m,suffix);
         }catch(Exception e){return value;}
+    }
+    private void styleMinuteField(EditText field,String hint){
+        field.setHint(hint); field.setTextSize(14); field.setTextColor(0xFFFFFFFF); field.setHintTextColor(0xFF999999);
+        field.setGravity(Gravity.CENTER); field.setPadding(8,4,8,4);
+        GradientDrawable bg=roundedBackground(0xFF111111,12); bg.setStroke(1,0xFF555555); field.setBackground(bg);
     }
     private void styleTimeField(EditText field){
         field.setTextSize(17); field.setTextColor(0xFFFFFFFF); field.setPadding(18,15,18,15);
