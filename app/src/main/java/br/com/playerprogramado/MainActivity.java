@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     private EditText startField, endField, onMinutesField, offMinutesField;
     private TextView musicText;
     private LinearLayout scheduleList;
-    private Button cycleToggle;
+    private Button cycleToggle, automaticToggle;
 
     static class Schedule {
         String start, end;
@@ -120,6 +120,23 @@ public class MainActivity extends Activity {
             saveSchedules(); ScheduleReceiver.rescheduleAll(this);
             Toast.makeText(this,"Programações salvas.",Toast.LENGTH_SHORT).show();
         }); root.addView(save);
+        automaticToggle=new Button(this);
+        updateAutomaticButton();
+        automaticToggle.setTextSize(13);
+        automaticToggle.setMinHeight(50);
+        automaticToggle.setOnClickListener(v->{
+            boolean active=!prefs.getBoolean("auto_schedule",true);
+            prefs.edit().putBoolean("auto_schedule",active).apply();
+            if(active){
+                ScheduleReceiver.rescheduleAll(this);
+                Toast.makeText(this,"Programação automática ativada.",Toast.LENGTH_SHORT).show();
+            }else{
+                ScheduleReceiver.cancelDailySchedules(this);
+                Toast.makeText(this,"Programação automática desativada.",Toast.LENGTH_SHORT).show();
+            }
+            updateAutomaticButton();
+        });
+        root.addView(automaticToggle);
         LinearLayout timerActions=new LinearLayout(this); timerActions.setOrientation(LinearLayout.HORIZONTAL); timerActions.setGravity(Gravity.CENTER_VERTICAL); LinearLayout.LayoutParams actionParams=new LinearLayout.LayoutParams(-1,-2); actionParams.setMargins(0,8,0,4); root.addView(timerActions,actionParams);
         cycleToggle=new Button(this); updateCycleButton(); cycleToggle.setTextSize(12); cycleToggle.setMinHeight(44); cycleToggle.setPadding(6,0,6,0); cycleToggle.setOnClickListener(v->{
             if(prefs.getBoolean("cycle_enabled",false)) ScheduleReceiver.stopCycle(this); else ScheduleReceiver.startCycle(this);
@@ -173,7 +190,8 @@ public class MainActivity extends Activity {
     }
 
     private void updateCycleButton(){ if(cycleToggle!=null) cycleToggle.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); }
-    @Override protected void onResume(){ super.onResume(); updateCycleButton(); }
+    private void updateAutomaticButton(){ if(automaticToggle!=null) automaticToggle.setText(prefs.getBoolean("auto_schedule",true)?"PROGRAMAÇÃO AUTOMÁTICA: ATIVADA":"ATIVAR PROGRAMAÇÃO AUTOMÁTICA"); }
+    @Override protected void onResume(){ super.onResume(); updateCycleButton(); updateAutomaticButton(); }
     interface ToneChanged { void onChanged(int value); }
     static class ToneKnob extends View {
         private final Paint paint=new Paint(3); private final RectF arc=new RectF(); private int value=50; private ToneChanged listener;
