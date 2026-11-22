@@ -15,8 +15,8 @@ public class MainActivity extends Activity {
     private final ArrayList<Schedule> schedules = new ArrayList<>();
     private SharedPreferences prefs;
     private Uri audioUri;
-    private EditText startField, endField;
-    private TextView musicText, listText;
+    private EditText startField, endField, onMinutesField, offMinutesField;
+    private TextView musicText, listText, timerStatus;
 
     static class Schedule {
         String start, end;
@@ -45,6 +45,18 @@ public class MainActivity extends Activity {
         root.addView(title,new LinearLayout.LayoutParams(-1,-2));
         TextView subtitle=new TextView(this); subtitle.setText("Sua música nos horários escolhidos"); subtitle.setGravity(Gravity.CENTER); subtitle.setPadding(0,6,0,18);
         root.addView(subtitle);
+        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR CICLICO (1 A 250 MINUTOS)"); timerTitle.setTextSize(18); timerTitle.setTextColor(0xFF14213D); timerTitle.setPadding(0,8,0,4); root.addView(timerTitle);
+        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setHint("Minutos ligado"); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); root.addView(onMinutesField);
+        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setHint("Minutos desligado"); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); root.addView(offMinutesField);
+        timerStatus=new TextView(this); timerStatus.setPadding(0,4,0,4); root.addView(timerStatus);
+        Button cycleButton=new Button(this); cycleButton.setText(prefs.getBoolean("cycle_enabled",false)?"DESATIVAR TEMPORIZADOR":"ATIVAR TEMPORIZADOR"); cycleButton.setOnClickListener(v->{
+            int on=parseMinutes(onMinutesField), off=parseMinutes(offMinutesField);
+            if(on<1||on>250||off<1||off>250){Toast.makeText(this,"Use valores de 1 a 250 minutos.",Toast.LENGTH_LONG).show();return;}
+            prefs.edit().putInt("cycle_on",on).putInt("cycle_off",off).apply();
+            if(prefs.getBoolean("cycle_enabled",false)){ScheduleReceiver.stopCycle(this);cycleButton.setText("ATIVAR TEMPORIZADOR");timerStatus.setText("Temporizador desativado.");}
+            else {if(audioUri==null){Toast.makeText(this,"Escolha uma música primeiro.",Toast.LENGTH_LONG).show();return;}ScheduleReceiver.startCycle(this);cycleButton.setText("DESATIVAR TEMPORIZADOR");timerStatus.setText("Temporizador ativo: "+on+" min ligado / "+off+" min desligado.");}
+        }); root.addView(cycleButton);
+        timerStatus.setText(prefs.getBoolean("cycle_enabled",false)?"Temporizador ativo.":"Temporizador desativado.");
         Button pick=new Button(this); pick.setText("ESCOLHER MÚSICA"); pick.setOnClickListener(v->{
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
@@ -66,6 +78,7 @@ public class MainActivity extends Activity {
         setContentView(root);
     }
 
+    private int parseMinutes(EditText field){try{return Integer.parseInt(field.getText().toString().trim());}catch(Exception e){return -1;}}
     private void updateMusicText(){ musicText.setText(audioUri==null?"Nenhuma música selecionada": "Música selecionada:\n"+audioUri.getLastPathSegment()); }
     @Override protected void onActivityResult(int req,int res,Intent data){
         super.onActivityResult(req,res,data);
