@@ -8,14 +8,16 @@ import android.os.*;
 import java.io.IOException;
 
 public class PlayerService extends Service {
-    static final String ACTION_PLAY="PLAY", ACTION_STOP="STOP", ACTION_STOP_AT_END="STOP_AT_END";\n    private boolean stopAtTrackEnd=false;
+    static final String ACTION_PLAY="PLAY", ACTION_STOP="STOP", ACTION_STOP_AT_END="STOP_AT_END";
+    private boolean stopAtTrackEnd=false;
     private MediaPlayer player;
     private static final String CHANNEL="player_programado";
 
     @Override public void onCreate(){super.onCreate();createChannel();}
     @Override public int onStartCommand(Intent intent,int flags,int startId){
         String action=intent==null?ACTION_STOP:intent.getAction();
-        if(ACTION_STOP.equals(action)){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();return START_NOT_STICKY;}\n        if(ACTION_STOP_AT_END.equals(action)){if(player==null){stopForeground(true);stopSelf();}else stopAtTrackEnd=true;return START_NOT_STICKY;}
+        if(ACTION_STOP.equals(action)){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();return START_NOT_STICKY;}
+        if(ACTION_STOP_AT_END.equals(action)){if(player==null){stopForeground(true);stopSelf();}else stopAtTrackEnd=true;return START_NOT_STICKY;}
         startForeground(1,notification());
         startPlayback();
         return START_STICKY;
@@ -28,9 +30,11 @@ public class PlayerService extends Service {
             player=new MediaPlayer();
             player.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
             player.setDataSource(this,Uri.parse(raw));
-            player.setLooping(false);\n            stopAtTrackEnd=false;
+            player.setLooping(false);
+            stopAtTrackEnd=false;
             player.setOnErrorListener((mp,what,extra)->{stopPlayback();stopForeground(true);stopSelf();return true;});
-            player.setOnPreparedListener(MediaPlayer::start);\n            player.setOnCompletionListener(mp->{if(stopAtTrackEnd){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();}else{try{mp.seekTo(0);mp.start();}catch(Exception e){stopPlayback();stopForeground(true);stopSelf();}}});
+            player.setOnPreparedListener(MediaPlayer::start);
+            player.setOnCompletionListener(mp->{if(stopAtTrackEnd){stopAtTrackEnd=false;stopPlayback();stopForeground(true);stopSelf();}else{try{mp.seekTo(0);mp.start();}catch(Exception e){stopPlayback();stopForeground(true);stopSelf();}}});
             player.prepareAsync();
         }catch(IOException|RuntimeException e){stopPlayback();stopForeground(true);stopSelf();}
     }
