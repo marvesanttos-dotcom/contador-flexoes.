@@ -386,7 +386,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private void stopWorkout(){
         workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);
         if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
-        setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
+        setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);stopButton.setVisibility(View.GONE);
         statusText.setText("TREINO ENCERRADO");timerText.setText("DESCANSO  00:00");
     }
     @Override protected void onDestroy(){
