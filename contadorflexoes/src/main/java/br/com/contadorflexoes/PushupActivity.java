@@ -170,7 +170,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         Calendar weekStart=(Calendar)dayStart.clone();weekStart.add(Calendar.DAY_OF_YEAR,-6);
         Calendar monthStart=(Calendar)dayStart.clone();monthStart.set(Calendar.DAY_OF_MONTH,1);
         String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
-        String[] statIcons={"▮","▥","🏆"};
+        String[] statIcons={"▣","▦","🏆"};
         for(int i=0;i<3;i++){
             LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(5),dp(10),dp(5),dp(10));
             item.addView(centered(statIcons[i],23,0xFFFFC400,true));
@@ -192,14 +192,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView st=text("⚙  CONFIGURAÇÕES DO TREINO",17,Color.WHITE,true);st.setPadding(0,0,0,dp(4));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout c1=column(),c2=column(),c3=column();
-        addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES / SÉRIE","10",false);addField(c3,"DESCANSO (SEG)","60",false);
+        addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);addField(c3,"DESCANSO (SEGUNDOS)","60",false);
         LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(4);
         LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(3);p2.rightMargin=dp(3);
         LinearLayout.LayoutParams p3=new LinearLayout.LayoutParams(0,-2,1);p3.leftMargin=dp(4);
         row.addView(c1,p1);row.addView(c2,p2);row.addView(c3,p3);settings.addView(row);
-        TextView note=text("O descanso começa automaticamente ao concluir cada série.",11,0xFFB8A88F,false);
-        note.setPadding(0,dp(4),0,0);settings.addView(note);
-        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,0,0.98f);sp.bottomMargin=dp(7);root.addView(settings,sp);
+                LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,0,0.98f);sp.bottomMargin=dp(7);root.addView(settings,sp);
 
         startButton=new TechStartButton(this);startButton.setText("▶   INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTypeface(null,1);startButton.setTextColor(0xFF100B00);
         android.graphics.drawable.GradientDrawable startBg=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xFFFFE45A,0xFFFFC400,0xFFFFAA00});startBg.setCornerRadius(dp(7));startBg.setStroke(dp(2),0xFFFFE47A);startButton.setBackgroundColor(Color.TRANSPARENT);startButton.setElevation(dp(8));
@@ -323,7 +321,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
-        TextView label=text(caption,10,0xFFD8C5A3,true); label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
+        TextView label=text(caption,11,0xFFD8C5A3,true); label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
         LinearLayout control=new LinearLayout(this);control.setGravity(Gravity.CENTER);control.setOrientation(LinearLayout.HORIZONTAL);
         Button minus=new Button(this);minus.setText("−");minus.setTextSize(17);minus.setMinWidth(0);minus.setMinimumWidth(0);minus.setPadding(0,0,0,0);
         minus.setTextColor(0xFFFFC400);minus.setBackground(round(0xFF211A10,24));
