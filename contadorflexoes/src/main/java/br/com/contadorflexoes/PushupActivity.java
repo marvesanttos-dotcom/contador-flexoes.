@@ -187,7 +187,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         String period=progressPeriod==0?"nos últimos 7 dias":progressPeriod==1?"neste mês":"neste ano";
         progressSummary.setText(String.format(Locale.getDefault(),"%d FLEXÕES",repsSum));
         progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" flexões");
-        LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(5);
+        LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(4);
         while(history.getChildCount()>2)history.removeViewAt(2);
         if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\nComplete um treino para começar seu histórico.",13,0xFF9EADBD,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
         else{
