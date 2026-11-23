@@ -264,7 +264,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
                     float t=i/(float)(segments-1);
                     float y=dp(52)+t*(h-dp(104));
                     float curve=(float)Math.sin(t*Math.PI)*dp(23);
-                    float x=side==0?dp(37)+curve:w-dp(37)-curve;
+                    float x=side==0?dp(37)-curve:w-dp(37)+curve;
                     float len=dp(16),th=dp(7);
                     paint.setStyle(Paint.Style.FILL);
                     paint.setColor(i<Math.round(progress*segments)?0xFFFFD02B:0xFF634719);
