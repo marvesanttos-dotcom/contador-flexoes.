@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -31,7 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PushupActivity extends androidx.activity.ComponentActivity {
     
-    private TextView countText, setText, statusText, timerText, cameraIndicator;
+    private TextView countText, setText, statusText;
+    private CircleTimerView restCircle;
     private ViewFlipper pages;
     private TextView pageTabWorkout, pageTabProgress, progressSummary, progressDetail;
     private int progressPeriod=0;
@@ -175,18 +179,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }
         LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,-2);qsp.bottomMargin=dp(9);root.addView(quickStats,qsp);
 
-        LinearLayout cameraCard=premiumPanel();cameraCard.setGravity(Gravity.CENTER);
-        cameraIndicator=centered("●  CÂMERA AGUARDANDO",12,0xFFFFC400,true);cameraCard.addView(cameraIndicator);
-        TextView cameraNote=centered("Câmera frontal ativa • imagem não exibida",10,0xFFB8A88F,false);cameraNote.setPadding(0,dp(3),0,0);cameraCard.addView(cameraNote);
-        LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,dp(56));cp.bottomMargin=dp(9);root.addView(cameraCard,cp);
-
-        LinearLayout timerCard=premiumPanel();timerCard.setOrientation(LinearLayout.HORIZONTAL);timerCard.setGravity(Gravity.CENTER_VERTICAL);
-        TextView clock=centered("◷",42,0xFFFFC400,true);timerCard.addView(clock,new LinearLayout.LayoutParams(dp(58),dp(70)));
-        LinearLayout timerCol=column();timerCol.setGravity(Gravity.CENTER_VERTICAL);
-        TextView timerTitle=text("DESCANSO",12,Color.WHITE,true);timerCol.addView(timerTitle);
-        timerText=text("00:00",35,0xFFFFC400,true);timerCol.addView(timerText);
-        timerCard.addView(timerCol,new LinearLayout.LayoutParams(0,-2,1));
-        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-1,dp(76));tp.bottomMargin=dp(6);root.addView(timerCard,tp);
+        LinearLayout timerArea=column();timerArea.setGravity(Gravity.CENTER);
+        restCircle=new CircleTimerView(this);
+        LinearLayout.LayoutParams circleP=new LinearLayout.LayoutParams(dp(154),dp(154));
+        circleP.bottomMargin=dp(7);timerArea.addView(restCircle,circleP);
+        restCircle.setDisplay("00:00","DESCANSO",0f);
+        root.addView(timerArea,new LinearLayout.LayoutParams(-1,dp(164)));
 
         statusText=centered("PRONTO PARA COMEÇAR",13,0xFFFFC400,true);
         statusText.setPadding(0,dp(3),0,dp(6));root.addView(statusText);
@@ -212,6 +210,29 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
         return root;
     }
+
+    private class CircleTimerView extends View {
+        private final Paint paint=new Paint(3);
+        private final RectF arc=new RectF();
+        private String value="00:00", label="DESCANSO";
+        private float progress=0f;
+        CircleTimerView(Context c){super(c);}
+        void setDisplay(String v,String l,float p){value=v;label=l;progress=Math.max(0f,Math.min(1f,p));invalidate();}
+        @Override protected void onDraw(Canvas c){
+            super.onDraw(c);
+            float cx=getWidth()/2f,cy=getHeight()/2f,radius=Math.min(cx,cy)-dp(11);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(7));paint.setStrokeCap(Paint.Cap.ROUND);
+            paint.setColor(0xFF29231A);c.drawCircle(cx,cy,radius,paint);
+            arc.set(cx-radius,cy-radius,cx+radius,cy+radius);
+            paint.setColor(0xFFFFC400);c.drawArc(arc,-90,360*progress,false,paint);
+            paint.setStyle(Paint.Style.FILL);paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD));
+            paint.setTextSize(dp(29));paint.setColor(Color.WHITE);c.drawText(value,cx,cy+dp(8),paint);
+            paint.setTextSize(dp(10));paint.setColor(0xFFFFC400);c.drawText(label,cx,cy+dp(29),paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(1));paint.setColor(0xFF604817);c.drawCircle(cx,cy,radius+dp(7),paint);
+        }
+    }
+
     private View buildProgressPage(){
         LinearLayout root=column();
         TextView title=text("SEU PROGRESSO",22,Color.WHITE,true);title.setGravity(Gravity.CENTER);title.setPadding(0,dp(12),0,dp(4));root.addView(title);
@@ -283,7 +304,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }
         reps=0; completedReps=0; sessionSaved=false; sets=1; down=false; workout=true; resting=false; countingEnabled=false; updateStats();
         setInputsEnabled(false); startButton.setEnabled(false); stopButton.setVisibility(View.VISIBLE); stopButton.setEnabled(true);
-        statusText.setText("PREPARE-SE — POSICIONE-SE DE LADO");
+        statusText.setText("PREPARE-SE PARA COMEÇAR");
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},77);
         else startCamera();
@@ -302,25 +323,24 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             ImageAnalysis a=new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
             a.setAnalyzer(cameraExecutor,this::analyze); cameraProvider.unbindAll();
             cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,a); cameraStarted=true;
-            cameraIndicator.setText("●  CÂMERA EM USO"); cameraIndicator.setTextColor(0xFFFFB000);
             startCountdown();
         }catch(Exception e){statusText.setText("NÃO FOI POSSÍVEL ABRIR A CÂMERA");}},ContextCompat.getMainExecutor(this));
     }
     private void startCountdown(){
         countingEnabled=false; countdownSeconds=3;
         statusText.setText("PREPARE-SE");
-        timerText.setText("COMEÇANDO EM 3");
+        restCircle.setDisplay("3","PREPARE-SE",0f);
         if(countdownTick!=null)handler.removeCallbacks(countdownTick);
         countdownTick=new Runnable(){
             @Override public void run(){
                 if(!workout)return;
                 if(countdownSeconds>1){
                     countdownSeconds--;
-                    timerText.setText("COMEÇANDO EM "+countdownSeconds);
+                    restCircle.setDisplay(String.valueOf(countdownSeconds),"PREPARE-SE",0f);
                     handler.postDelayed(this,1000);
                 }else{
                     countingEnabled=true;
-                    timerText.setText("DESCANSO  00:00");
+                    restCircle.setDisplay("00:00","TREINO ATIVO",0f);
                     statusText.setText("VALENDO! PODE COMEÇAR");
                     vibrate();
                 }
@@ -357,8 +377,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private void beginRest(){resting=true;down=false;remaining=restSeconds;statusText.setText("SÉRIE CONCLUÍDA! HORA DE DESCANSAR");vibrate();tickRest();}
     private void tickRest(){
-        timerText.setText(String.format(Locale.getDefault(),"DESCANSO  %02d:%02d",remaining/60,remaining%60));
-        if(remaining<=0){resting=false;reps=0;sets++;updateStats();statusText.setText("VAMOS! PRÓXIMA SÉRIE");timerText.setText("DESCANSO  00:00");vibrate();return;}
+        restCircle.setDisplay(String.format(Locale.getDefault(),"%02d:%02d",remaining/60,remaining%60),"DESCANSO",restSeconds<=0?0f:(float)(restSeconds-remaining)/restSeconds);
+        if(remaining<=0){resting=false;reps=0;sets++;updateStats();statusText.setText("VAMOS! PRÓXIMA SÉRIE");restCircle.setDisplay("00:00","DESCANSO",0f);vibrate();return;}
         remaining--; restTick=this::tickRest; handler.postDelayed(restTick,1000);
     }
     private void updateStats(){
@@ -373,8 +393,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         setText.setText(styled);
     }
     private void finishWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
-        timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
+        restCircle.setDisplay("✓","CONCLUÍDO",1f);
         vibrate(); if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);stopButton.setVisibility(View.GONE);
     }
@@ -384,11 +404,9 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }}catch(Exception ignored){}
     }
     private void stopWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);
-        if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);stopButton.setVisibility(View.GONE);
-        statusText.setText("TREINO ENCERRADO");timerText.setText("DESCANSO  00:00");
-    }
+        statusText.setText("TREINO ENCERRADO");restCircle.setDisplay("00:00","DESCANSO",0f);}
     @Override protected void onDestroy(){
         super.onDestroy();if(cameraProvider!=null)cameraProvider.unbindAll();
         if(detector!=null)detector.close();if(cameraExecutor!=null)cameraExecutor.shutdown();
