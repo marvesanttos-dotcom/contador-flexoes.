@@ -149,17 +149,17 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         ImageView heroImage=new ImageView(this);
         try{heroImage.setImageResource(R.mipmap.ic_launcher);}catch(Exception ignored){}
         heroImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(148),dp(148)));
+        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(116),dp(116)));
         LinearLayout repBlock=column();repBlock.setGravity(Gravity.CENTER);
         LinearLayout seriesRow=new LinearLayout(this);seriesRow.setGravity(Gravity.CENTER);
         TextView flexIcon=centered("💪",20,0xFFFFC400,true);seriesRow.addView(flexIcon);
-        TextView seriesLabel=centered("  SÉRIE ATUAL",12,Color.WHITE,true);seriesRow.addView(seriesLabel);
+        TextView seriesLabel=centered("  SÉRIE ATUAL",14,Color.WHITE,true);seriesRow.addView(seriesLabel);
         repBlock.addView(seriesRow);
-        setText=centered("1 / 3",22,0xFFFFC400,true);
+        setText=centered("1 / 3",29,0xFFFFC400,true);
         repBlock.addView(setText);
-        countText=centered("0",50,Color.WHITE,true);repBlock.addView(countText);
-        TextView repCaption=centered("FLEXÕES",10,0xFFD9B65A,true);repBlock.addView(repCaption);
-        TextView targetCaption=centered("META DA SÉRIE  •  10",10,0xFFFFC400,true);android.graphics.drawable.GradientDrawable targetBg=round(0xFF090806,18);targetBg.setStroke(dp(1),0xFFFFB900);targetCaption.setBackground(targetBg);targetCaption.setPadding(dp(9),dp(3),dp(9),dp(3));repBlock.addView(targetCaption);
+        countText=centered("0",60,Color.WHITE,true);repBlock.addView(countText);
+        TextView repCaption=centered("FLEXÕES",12,0xFFD9B65A,true);repBlock.addView(repCaption);
+        TextView targetCaption=centered("META DA SÉRIE  •  10",12,0xFFFFC400,true);android.graphics.drawable.GradientDrawable targetBg=round(0xFF090806,18);targetBg.setStroke(dp(1),0xFFFFB900);targetCaption.setBackground(targetBg);targetCaption.setPadding(dp(9),dp(3),dp(9),dp(3));repBlock.addView(targetCaption);
         hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
         LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,0,1.00f);heroP.bottomMargin=dp(7);root.addView(hero,heroP);
 
