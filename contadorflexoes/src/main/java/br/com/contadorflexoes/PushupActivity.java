@@ -146,9 +146,6 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         root.setClipToPadding(false);
 
         LinearLayout hero=premiumPanel();hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);
-        ImageView heroImage=new ImageView(this);
-        try{heroImage.setImageResource(R.mipmap.ic_launcher);}catch(Exception ignored){}
-        heroImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         hero.addView(new HeroArtworkView(this),new LinearLayout.LayoutParams(dp(154),dp(140)));
         LinearLayout repBlock=column();repBlock.setGravity(Gravity.CENTER);
         LinearLayout seriesRow=new LinearLayout(this);seriesRow.setGravity(Gravity.CENTER);
@@ -219,8 +216,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             clip.reset();clip.addOval(new RectF(0,0,w,h),Path.Direction.CW);
             int save=canvas.save();canvas.clipPath(clip);
             // Crop the launcher artwork before its small bottom shortcut symbols.
-            RectF src=new RectF(0,0,bitmap.getWidth(),bitmap.getHeight()*0.82f);
-            canvas.drawBitmap(bitmap,null,new RectF(0,0,w,h),p);
+            android.graphics.Rect src=new android.graphics.Rect(0,0,bitmap.getWidth(),(int)(bitmap.getHeight()*0.82f));
+            canvas.drawBitmap(bitmap,src,new RectF(0,0,w,h),p);
             canvas.restoreToCount(save);
         }
     }
