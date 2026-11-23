@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
         prefs=getSharedPreferences("player",MODE_PRIVATE);
         String saved=prefs.getString("audio","");
         if(!saved.isEmpty()) audioUri=Uri.parse(saved);
+        if(!prefs.contains("cycle_on") || !prefs.contains("cycle_off")) prefs.edit().putInt("cycle_on",1).putInt("cycle_off",1).apply();
         loadSchedules();
         buildScreen();
         requestBatteryExemptionIfNeeded();
@@ -82,15 +83,24 @@ public class MainActivity extends Activity {
         LinearLayout playingTile=new LinearLayout(this); playingTile.setOrientation(LinearLayout.VERTICAL); playingTile.setGravity(Gravity.CENTER); playingTile.setPadding(6,4,6,4); playingTile.setBackground(roundedBackground(0xFF111111,18));
         TextView playingLabel=new TextView(this); playingLabel.setText("TOCANDO"); playingLabel.setTextSize(13); playingLabel.setTypeface(null,1); playingLabel.setTextColor(0xFFFFFFFF); playingLabel.setGravity(Gravity.CENTER); playingLabel.setIncludeFontPadding(false); LinearLayout.LayoutParams playingLabelParams=new LinearLayout.LayoutParams(-1,38); playingLabelParams.bottomMargin=8; playingTile.addView(playingLabel,playingLabelParams);
         LinearLayout playingBalloon=new LinearLayout(this); playingBalloon.setOrientation(LinearLayout.VERTICAL); playingBalloon.setGravity(Gravity.CENTER); playingBalloon.setPadding(8,4,8,4); GradientDrawable playingBg=roundedBackground(0xFF050505,14); playingBg.setStroke(1,0xFF777777); playingBalloon.setBackground(playingBg);
-        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",60))); styleMinuteField(onMinutesField,""); onMinutesField.setTextSize(20); onMinutesField.setTypeface(null,1); onMinutesField.setTextColor(0xFFFFFFFF); onMinutesField.setBackgroundColor(0x00000000); onMinutesField.setSelectAllOnFocus(true); onMinutesField.setGravity(Gravity.CENTER); onMinutesField.setIncludeFontPadding(false); onMinutesField.setMinWidth(0); playingBalloon.addView(onMinutesField,new LinearLayout.LayoutParams(-1,64));
+        onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",1))); styleMinuteField(onMinutesField,""); onMinutesField.setTextSize(20); onMinutesField.setTypeface(null,1); onMinutesField.setTextColor(0xFFFFFFFF); onMinutesField.setBackgroundColor(0x00000000); onMinutesField.setSelectAllOnFocus(true); onMinutesField.setGravity(Gravity.CENTER); onMinutesField.setIncludeFontPadding(false); onMinutesField.setMinWidth(0); playingBalloon.addView(onMinutesField,new LinearLayout.LayoutParams(-1,64));
         TextView onUnit=new TextView(this); onUnit.setText("MINUTOS"); onUnit.setTextSize(10); onUnit.setTypeface(null,1); onUnit.setTextColor(0xFFBBBBBB); onUnit.setGravity(Gravity.CENTER); playingBalloon.addView(onUnit); playingTile.addView(playingBalloon,new LinearLayout.LayoutParams(-1,104));
         timerFields.addView(playingTile,new LinearLayout.LayoutParams(0,160,1));
         LinearLayout stoppedTile=new LinearLayout(this); stoppedTile.setOrientation(LinearLayout.VERTICAL); stoppedTile.setGravity(Gravity.CENTER); stoppedTile.setPadding(6,4,6,4); stoppedTile.setBackground(roundedBackground(0xFF111111,18));
         TextView stoppedLabel=new TextView(this); stoppedLabel.setText("PARADO"); stoppedLabel.setTextSize(13); stoppedLabel.setTypeface(null,1); stoppedLabel.setTextColor(0xFFFFFFFF); stoppedLabel.setGravity(Gravity.CENTER); stoppedLabel.setIncludeFontPadding(false); LinearLayout.LayoutParams stoppedLabelParams=new LinearLayout.LayoutParams(-1,38); stoppedLabelParams.bottomMargin=8; stoppedTile.addView(stoppedLabel,stoppedLabelParams);
         LinearLayout stoppedBalloon=new LinearLayout(this); stoppedBalloon.setOrientation(LinearLayout.VERTICAL); stoppedBalloon.setGravity(Gravity.CENTER); stoppedBalloon.setPadding(8,4,8,4); GradientDrawable stoppedBg=roundedBackground(0xFF050505,14); stoppedBg.setStroke(1,0xFF777777); stoppedBalloon.setBackground(stoppedBg);
-        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",60))); styleMinuteField(offMinutesField,""); offMinutesField.setTextSize(20); offMinutesField.setTypeface(null,1); offMinutesField.setTextColor(0xFFFFFFFF); offMinutesField.setBackgroundColor(0x00000000); offMinutesField.setSelectAllOnFocus(true); offMinutesField.setGravity(Gravity.CENTER); offMinutesField.setIncludeFontPadding(false); offMinutesField.setMinWidth(0); stoppedBalloon.addView(offMinutesField,new LinearLayout.LayoutParams(-1,64));
+        offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",1))); styleMinuteField(offMinutesField,""); offMinutesField.setTextSize(20); offMinutesField.setTypeface(null,1); offMinutesField.setTextColor(0xFFFFFFFF); offMinutesField.setBackgroundColor(0x00000000); offMinutesField.setSelectAllOnFocus(true); offMinutesField.setGravity(Gravity.CENTER); offMinutesField.setIncludeFontPadding(false); offMinutesField.setMinWidth(0); stoppedBalloon.addView(offMinutesField,new LinearLayout.LayoutParams(-1,64));
         TextView offUnit=new TextView(this); offUnit.setText("MINUTOS"); offUnit.setTextSize(10); offUnit.setTypeface(null,1); offUnit.setTextColor(0xFFBBBBBB); offUnit.setGravity(Gravity.CENTER); stoppedBalloon.addView(offUnit); stoppedTile.addView(stoppedBalloon,new LinearLayout.LayoutParams(-1,104));
         LinearLayout.LayoutParams stoppedParams=new LinearLayout.LayoutParams(0,160,1); stoppedParams.setMargins(10,0,0,0); timerFields.addView(stoppedTile,stoppedParams);
+        Button saveTimerButton=new Button(this);
+        saveTimerButton.setText("✓  SALVAR TEMPORIZADOR");
+        saveTimerButton.setTextSize(14);
+        saveTimerButton.setTypeface(null,1);
+        saveTimerButton.setAllCaps(false);
+        LinearLayout.LayoutParams saveTimerParams=new LinearLayout.LayoutParams(-1,54);
+        saveTimerParams.setMargins(0,0,0,14);
+        root.addView(saveTimerButton,saveTimerParams);
+        saveTimerButton.setOnClickListener(v->saveTimerSettings(true));
         TextView toneTitle=new TextView(this); toneTitle.setText("AJUSTE DA GROSSURA DO ÁUDIO"); toneTitle.setTextSize(16); toneTitle.setTypeface(null,1); toneTitle.setTextColor(0xFFFFFFFF); toneTitle.setPadding(0,16,0,8); root.addView(toneTitle);
         LinearLayout toneCard=new LinearLayout(this); toneCard.setOrientation(LinearLayout.VERTICAL); toneCard.setPadding(16,14,16,14); toneCard.setBackground(roundedBackground(0xFF101010,18)); LinearLayout.LayoutParams toneCardParams=new LinearLayout.LayoutParams(-1,-2); toneCardParams.setMargins(0,0,0,12); root.addView(toneCard,toneCardParams);
         TextView toneValue=new TextView(this); toneValue.setTextSize(20); toneValue.setTypeface(null,1); toneValue.setTextColor(0xFFFFFFFF); toneValue.setGravity(Gravity.CENTER); toneCard.addView(toneValue,new LinearLayout.LayoutParams(-1,-2));
@@ -139,6 +149,7 @@ public class MainActivity extends Activity {
         root.addView(automaticToggle);
         LinearLayout timerActions=new LinearLayout(this); timerActions.setOrientation(LinearLayout.HORIZONTAL); timerActions.setGravity(Gravity.CENTER_VERTICAL); LinearLayout.LayoutParams actionParams=new LinearLayout.LayoutParams(-1,-2); actionParams.setMargins(0,8,0,4); root.addView(timerActions,actionParams);
         cycleToggle=new Button(this); updateCycleButton(); cycleToggle.setTextSize(12); cycleToggle.setMinHeight(44); cycleToggle.setPadding(6,0,6,0); cycleToggle.setOnClickListener(v->{
+            if(!saveTimerSettings(false)) return;
             if(prefs.getBoolean("cycle_enabled",false)) ScheduleReceiver.stopCycle(this); else ScheduleReceiver.startCycle(this);
             updateCycleButton();
         }); timerActions.addView(cycleToggle,new LinearLayout.LayoutParams(0,48,1));
@@ -152,6 +163,10 @@ public class MainActivity extends Activity {
         scroll.setVerticalScrollBarEnabled(true);
         scroll.addView(root,new ScrollView.LayoutParams(-1,-2));
         styleAmoled(root);
+        GradientDrawable saveBg=roundedBackground(0xFFFFFFFF,24);
+        saveBg.setStroke(1,0xFFFFFFFF);
+        saveTimerButton.setBackground(saveBg);
+        saveTimerButton.setTextColor(0xFF000000);
         getWindow().getDecorView().setBackgroundColor(0xFF000000);
         setContentView(scroll);
     }
@@ -208,6 +223,14 @@ public class MainActivity extends Activity {
         @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()==MotionEvent.ACTION_DOWN||e.getAction()==MotionEvent.ACTION_MOVE){float dx=e.getX()-getWidth()/2f,dy=e.getY()-getHeight()/2f;double deg=Math.toDegrees(Math.atan2(dy,dx));double rel=(deg-135+360)%360;if(rel>270)rel=rel<315?270:0;value=Math.max(0,Math.min(100,(int)Math.round(rel/2.7)));invalidate();if(listener!=null)listener.onChanged(value);return true;}return e.getAction()==MotionEvent.ACTION_UP||e.getAction()==MotionEvent.ACTION_CANCEL;}
     }
     private int parseMinutes(EditText field){try{return Integer.parseInt(field.getText().toString().trim());}catch(Exception e){return -1;}}
+    private boolean saveTimerSettings(boolean notify){
+        int on=parseMinutes(onMinutesField), off=parseMinutes(offMinutesField);
+        if(on<1||on>250){onMinutesField.setError("Use de 1 a 250 minutos");Toast.makeText(this,"O tempo TOCANDO deve ser de 1 a 250 minutos.",Toast.LENGTH_LONG).show();return false;}
+        if(off<1||off>250){offMinutesField.setError("Use de 1 a 250 minutos");Toast.makeText(this,"O tempo PARADO deve ser de 1 a 250 minutos.",Toast.LENGTH_LONG).show();return false;}
+        prefs.edit().putInt("cycle_on",on).putInt("cycle_off",off).apply();
+        if(notify)Toast.makeText(this,"Tempos do temporizador salvos.",Toast.LENGTH_SHORT).show();
+        return true;
+    }
     private void updateMusicText(){ musicText.setText(audioUri==null?"Nenhuma música selecionada": "Música selecionada:\n"+audioUri.getLastPathSegment()); }
     @Override protected void onActivityResult(int req,int res,Intent data){
         super.onActivityResult(req,res,data);
