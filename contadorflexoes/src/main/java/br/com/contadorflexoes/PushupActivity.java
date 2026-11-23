@@ -84,21 +84,10 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private void buildUi(){
         LinearLayout shell=column();
         shell.setBackgroundColor(0xFF080604);
-        LinearLayout tabs=new LinearLayout(this);
-        tabs.setOrientation(LinearLayout.HORIZONTAL);
-        tabs.setPadding(dp(8),dp(1),dp(8),dp(1));
-        pageTabWorkout=text("TREINO",14,0xFFFFB000,true);
-        pageTabProgress=text("PROGRESSO  ›",14,0xFFB8A88F,true);
-        pageTabWorkout.setGravity(Gravity.CENTER); pageTabProgress.setGravity(Gravity.CENTER);
-        tabs.addView(pageTabWorkout,new LinearLayout.LayoutParams(0,dp(34),1));
-        tabs.addView(pageTabProgress,new LinearLayout.LayoutParams(0,dp(34),1));
-        shell.addView(tabs);
         pages=new ViewFlipper(this);
         pages.addView(buildWorkoutPage());
         pages.addView(buildProgressPage());
         shell.addView(pages,new LinearLayout.LayoutParams(-1,0,1));
-        pageTabWorkout.setOnClickListener(v->showPage(0));
-        pageTabProgress.setOnClickListener(v->showPage(1));
         pages.setOnTouchListener((v,event)->{
             if(event.getAction()==android.view.MotionEvent.ACTION_DOWN){touchStartX=event.getX();touchStartY=event.getY();return true;}
             if(event.getAction()==android.view.MotionEvent.ACTION_UP){
@@ -111,10 +100,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private void showPage(int page){
         pages.setDisplayedChild(page);
-        pageTabWorkout.setTextColor(page==0?0xFFFFB000:0xFFB8A88F);
-        pageTabProgress.setTextColor(page==1?0xFFFFB000:0xFFB8A88F);
-        pageTabWorkout.setText(page==0?"●  TREINO":"TREINO");
-        pageTabProgress.setText(page==1?"●  PROGRESSO":"PROGRESSO  ›");
+        if(pageTabWorkout!=null&&pageTabProgress!=null){
+            pageTabWorkout.setTextColor(page==0?0xFFFFB000:0xFFB8A88F);
+            pageTabProgress.setTextColor(page==1?0xFFFFB000:0xFFB8A88F);
+            pageTabWorkout.setText(page==0?"●  TREINO":"TREINO");
+            pageTabProgress.setText(page==1?"●  PROGRESSO":"PROGRESSO  ›");
+        }
         if(page==1)refreshProgress();
     }
     private ScrollView pageScroll(LinearLayout root){
@@ -151,14 +142,14 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private View buildWorkoutPage(){
         LinearLayout root=column();
-        root.setPadding(dp(10),dp(3),dp(10),dp(4));
+        root.setPadding(dp(12),dp(8),dp(12),dp(12));
         root.setClipToPadding(false);
 
         LinearLayout hero=premiumPanel();hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);
         ImageView heroImage=new ImageView(this);
         try{heroImage.setImageResource(R.mipmap.ic_launcher);}catch(Exception ignored){}
         heroImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(104),dp(108)));
+        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(142),dp(154)));
         LinearLayout repBlock=column();repBlock.setGravity(Gravity.CENTER);
         LinearLayout seriesRow=new LinearLayout(this);seriesRow.setGravity(Gravity.CENTER);
         TextView flexIcon=centered("💪",20,0xFFFFC400,true);seriesRow.addView(flexIcon);
@@ -170,7 +161,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView repCaption=centered("FLEXÕES",10,0xFFD9B65A,true);repBlock.addView(repCaption);
         TextView targetCaption=centered("META DA SÉRIE  •  10",10,0xFFFFC400,true);repBlock.addView(targetCaption);
         hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
-        LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,0,1.55f);heroP.bottomMargin=dp(5);root.addView(hero,heroP);
+        LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,0,1.38f);heroP.bottomMargin=dp(8);root.addView(hero,heroP);
 
         LinearLayout quickStats=new LinearLayout(this);quickStats.setOrientation(LinearLayout.HORIZONTAL);
         String[] statNames={"HOJE","ESTA SEMANA","ESTE MÊS"};
@@ -187,11 +178,11 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             item.addView(centered(statValues[i],22,Color.WHITE,true));
             LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,-1,1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
         }
-        LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,0,0.82f);qsp.bottomMargin=dp(5);root.addView(quickStats,qsp);
+        LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,0,0.86f);qsp.bottomMargin=dp(8);root.addView(quickStats,qsp);
 
         restCircle=new CircleTimerView(this);
         restCircle.setDisplay("00:00","DESCANSO",0f);
-        LinearLayout.LayoutParams timerP=new LinearLayout.LayoutParams(-1,0,1.50f);
+        LinearLayout.LayoutParams timerP=new LinearLayout.LayoutParams(-1,0,1.42f);
         timerP.bottomMargin=dp(4);root.addView(restCircle,timerP);
 
         statusText=centered("PRONTO PARA COMEÇAR",13,0xFFFFC400,true);
@@ -208,10 +199,10 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         row.addView(c1,p1);row.addView(c2,p2);row.addView(c3,p3);settings.addView(row);
         TextView note=text("O descanso começa automaticamente ao concluir cada série.",11,0xFFB8A88F,false);
         note.setPadding(0,dp(4),0,0);settings.addView(note);
-        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,0,1.28f);sp.bottomMargin=dp(4);root.addView(settings,sp);
+        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,0,1.18f);sp.bottomMargin=dp(7);root.addView(settings,sp);
 
         startButton=new Button(this);startButton.setText("▶   INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTypeface(null,1);startButton.setTextColor(0xFF100B00);
-        startButton.setBackground(premiumCard(0xFFFFC400,0xFFFFE47A,28));
+        startButton.setBackground(premiumCard(0xFFFFC400,0xFFFFE47A,12));
         LinearLayout.LayoutParams startP=new LinearLayout.LayoutParams(-1,0,0.60f);startP.topMargin=dp(1);root.addView(startButton,startP);
         stopButton=new Button(this);stopButton.setText("■   ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setTextSize(13);stopButton.setTextColor(0xFFE8DCC2);stopButton.setBackground(premiumCard(0xFF15110B,0xFF70521A,26));
         stopButton.setVisibility(View.GONE);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(38)));
@@ -228,18 +219,29 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         CircleTimerView(Context c){super(c);}
         void setDisplay(String v,String l,float p){value=v;label=l;progress=Math.max(0f,Math.min(1f,p));invalidate();}
         @Override protected void onDraw(Canvas c){
-            super.onDraw(c);float w=getWidth(),h=getHeight(),cut=dp(22);
-            bevel.reset();bevel.moveTo(cut,dp(3));bevel.lineTo(w-cut,dp(3));bevel.lineTo(w-dp(3),cut);bevel.lineTo(w-dp(3),h-cut);bevel.lineTo(w-cut,h-dp(3));bevel.lineTo(cut,h-dp(3));bevel.lineTo(dp(3),h-cut);bevel.lineTo(dp(3),cut);bevel.close();
+            super.onDraw(c);
+            float w=getWidth(),h=getHeight(),cut=dp(24),pad=dp(4);
+            bevel.reset();bevel.moveTo(cut,pad);bevel.lineTo(w-cut,pad);bevel.lineTo(w-pad,cut);bevel.lineTo(w-pad,h-cut);bevel.lineTo(w-cut,h-pad);bevel.lineTo(cut,h-pad);bevel.lineTo(pad,h-cut);bevel.lineTo(pad,cut);bevel.close();
             paint.setStyle(Paint.Style.FILL);paint.setColor(0xFF080808);c.drawPath(bevel,paint);
-            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFB900);paint.setShadowLayer(dp(8),0,0,0xCCFF9900);c.drawPath(bevel,paint);paint.clearShadowLayer();
-            inner.set(dp(12),dp(12),w-dp(12),h-dp(12));paint.setStrokeWidth(dp(1));paint.setColor(0xFF60451A);c.drawRoundRect(inner,dp(18),dp(18),paint);
-            float mid=h*0.59f;paint.setStrokeCap(Paint.Cap.SQUARE);paint.setStrokeWidth(dp(5));
-            int ticks=Math.max(8,Math.min(18,(int)(w/dp(24))));
-            for(int i=0;i<ticks;i++){float x=dp(22)+i*dp(7),xr=w-dp(22)-i*dp(7);int color=i<Math.round(progress*ticks)?0xFFFFD000:0xFF49320E;paint.setColor(color);c.drawLine(x,mid-dp(20),x,mid+dp(20),paint);c.drawLine(xr,mid-dp(20),xr,mid+dp(20),paint);}
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFB900);paint.setShadowLayer(dp(9),0,0,0xFFFFA000);c.drawPath(bevel,paint);paint.clearShadowLayer();
+            inner.set(dp(15),dp(15),w-dp(15),h-dp(15));paint.setStrokeWidth(dp(1));paint.setColor(0xFF684819);c.drawRoundRect(inner,dp(20),dp(20),paint);
+            float cx=w/2f,cy=h*0.60f,rad=Math.min(w*0.39f,h*0.43f);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeWidth(dp(7));paint.setColor(0xFF4A320E);
+            c.drawArc(cx-rad,cy-rad,cx+rad,cy+rad,145,250,false,paint);
+            paint.setColor(0xFFFFC400);paint.setShadowLayer(dp(7),0,0,0xFFFFA000);
+            c.drawArc(cx-rad,cy-rad,cx+rad,cy+rad,145,250*progress,false,paint);paint.clearShadowLayer();
+            paint.setStrokeCap(Paint.Cap.SQUARE);paint.setStrokeWidth(dp(4));
+            int ticks=Math.max(12,Math.min(28,(int)(w/dp(20))));
+            for(int i=0;i<ticks;i++){
+                float a=(float)Math.toRadians(145+i*(250f/(ticks-1)));
+                float x1=cx+(rad+dp(8))*(float)Math.cos(a),y1=cy+(rad+dp(8))*(float)Math.sin(a);
+                float x2=cx+(rad+dp(16))*(float)Math.cos(a),y2=cy+(rad+dp(16))*(float)Math.sin(a);
+                paint.setColor(i<Math.round(progress*ticks)?0xFFFFD000:0xFF4A320E);c.drawLine(x1,y1,x2,y2,paint);
+            }
             paint.setStyle(Paint.Style.FILL);paint.setTextAlign(Paint.Align.CENTER);paint.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));
-            paint.setTextSize(dp(13));paint.setColor(0xFFF2EBDD);c.drawText(label,cx(),dp(34),paint);
-            paint.setTextSize(Math.min(dp(54),h*0.43f));paint.setColor(0xFFFFC400);c.drawText(value,cx(),mid+dp(18),paint);
-            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFC400);c.drawLine(dp(24),h-dp(13),w-dp(24),h-dp(13),paint);
+            paint.setTextSize(dp(14));paint.setColor(0xFFF2EBDD);c.drawText(label,cx,dp(40),paint);
+            paint.setTextSize(Math.min(dp(66),h*0.47f));paint.setColor(0xFFFFC400);c.drawText(value,cx,cy+dp(20),paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFC400);c.drawLine(dp(26),h-dp(14),w-dp(26),h-dp(14),paint);
         }
         private float cx(){return getWidth()/2f;}
     }
