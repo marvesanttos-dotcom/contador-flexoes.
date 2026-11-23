@@ -22,6 +22,9 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.*;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import java.util.Locale;
+import java.util.Calendar;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,6 +32,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PushupActivity extends androidx.activity.ComponentActivity {
     
     private TextView countText, setText, statusText, timerText, cameraIndicator;
+    private ViewFlipper pages;
+    private TextView pageTabWorkout, pageTabProgress, progressSummary, progressDetail;
+    private int progressPeriod=0;
+    private int completedReps=0;
+    private boolean sessionSaved=false;
+    private float touchStartX, touchStartY;
     private EditText seriesInput, targetInput, restInput;
     private Button startButton, stopButton;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -68,74 +77,136 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         d.setColor(color); d.setCornerRadius(dp(radius)); return d;
     }
     private void buildUi(){
-        ScrollView scroll=new ScrollView(this);
-        scroll.setFillViewport(true);
-        scroll.setBackgroundColor(0xFF080B0F);
-        LinearLayout root=column(); root.setPadding(dp(16),dp(12),dp(16),dp(20));
-        scroll.addView(root);
-
+        LinearLayout shell=column();
+        shell.setBackgroundColor(0xFF080B0F);
+        LinearLayout tabs=new LinearLayout(this);
+        tabs.setOrientation(LinearLayout.HORIZONTAL);
+        tabs.setPadding(dp(12),dp(8),dp(12),dp(8));
+        pageTabWorkout=text("TREINO",14,0xFF59D6A5,true);
+        pageTabProgress=text("PROGRESSO  ›",14,0xFF9EADBD,true);
+        pageTabWorkout.setGravity(Gravity.CENTER); pageTabProgress.setGravity(Gravity.CENTER);
+        tabs.addView(pageTabWorkout,new LinearLayout.LayoutParams(0,dp(44),1));
+        tabs.addView(pageTabProgress,new LinearLayout.LayoutParams(0,dp(44),1));
+        shell.addView(tabs);
+        pages=new ViewFlipper(this);
+        pages.addView(buildWorkoutPage());
+        pages.addView(buildProgressPage());
+        shell.addView(pages,new LinearLayout.LayoutParams(-1,0,1));
+        pageTabWorkout.setOnClickListener(v->showPage(0));
+        pageTabProgress.setOnClickListener(v->showPage(1));
+        pages.setOnTouchListener((v,event)->{
+            if(event.getAction()==android.view.MotionEvent.ACTION_DOWN){touchStartX=event.getX();touchStartY=event.getY();return true;}
+            if(event.getAction()==android.view.MotionEvent.ACTION_UP){
+                float dx=event.getX()-touchStartX,dy=event.getY()-touchStartY;
+                if(Math.abs(dx)>dp(55)&&Math.abs(dx)>Math.abs(dy)){showPage(dx<0?1:0);return true;}
+            }
+            return true;
+        });
+        setContentView(shell);
+    }
+    private void showPage(int page){
+        pages.setDisplayedChild(page);
+        pageTabWorkout.setTextColor(page==0?0xFF59D6A5:0xFF9EADBD);
+        pageTabProgress.setTextColor(page==1?0xFF59D6A5:0xFF9EADBD);
+        pageTabWorkout.setText(page==0?"●  TREINO":"TREINO");
+        pageTabProgress.setText(page==1?"●  PROGRESSO":"PROGRESSO  ›");
+        if(page==1)refreshProgress();
+    }
+    private ScrollView pageScroll(LinearLayout root){
+        ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(0xFF080B0F);
+        root.setPadding(dp(16),dp(8),dp(16),dp(20));sc.addView(root);return sc;
+    }
+    private View buildWorkoutPage(){
+        LinearLayout root=column();
         TextView title=text("CONTADOR DE FLEXÕES",20,Color.WHITE,true);
-        title.setGravity(Gravity.CENTER); title.setPadding(0,dp(4),0,dp(4)); root.addView(title);
+        title.setGravity(Gravity.CENTER);title.setPadding(0,dp(4),0,dp(4));root.addView(title);
         TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFF9EADBD,false);
-        hint.setGravity(Gravity.CENTER); hint.setPadding(dp(8),dp(3),dp(8),dp(10)); root.addView(hint);
-
-        LinearLayout cameraCard=card(); cameraCard.setGravity(Gravity.CENTER);
-        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFF9EADBD,true);
-        cameraIndicator.setGravity(Gravity.CENTER);
-        cameraCard.addView(cameraIndicator);
+        hint.setGravity(Gravity.CENTER);hint.setPadding(dp(8),dp(3),dp(8),dp(10));root.addView(hint);
+        LinearLayout cameraCard=card();cameraCard.setGravity(Gravity.CENTER);
+        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFF9EADBD,true);cameraIndicator.setGravity(Gravity.CENTER);cameraCard.addView(cameraIndicator);
         TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFF9EADBD,false);
-        cameraNote.setGravity(Gravity.CENTER); cameraNote.setPadding(0,dp(4),0,0);
-        cameraCard.addView(cameraNote);
-        LinearLayout.LayoutParams cameraParams=new LinearLayout.LayoutParams(-1,-2); cameraParams.bottomMargin=dp(12);
-        root.addView(cameraCard,cameraParams);
-
+        cameraNote.setGravity(Gravity.CENTER);cameraNote.setPadding(0,dp(4),0,0);cameraCard.addView(cameraNote);
+        LinearLayout.LayoutParams cameraParams=new LinearLayout.LayoutParams(-1,-2);cameraParams.bottomMargin=dp(12);root.addView(cameraCard,cameraParams);
         LinearLayout stats=column();
-        LinearLayout repCard=card(); repCard.setGravity(Gravity.CENTER);
-        TextView repLabel=text("FLEXÕES",12,0xFF9EADBD,true); repLabel.setGravity(Gravity.CENTER);
-        countText=text("0",48,0xFF59D6A5,true); countText.setGravity(Gravity.CENTER);
-        repCard.addView(repLabel); repCard.addView(countText);
-        stats.addView(repCard,new LinearLayout.LayoutParams(-1,-2));
-
-        LinearLayout seriesCard=card(); seriesCard.setGravity(Gravity.CENTER);
-        seriesCard.setBackground(round(0xFF203A36,16));
-        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFB7E8D5,true); seriesLabel.setGravity(Gravity.CENTER);
-        setText=text("1/3",32,0xFF59D6A5,true); setText.setGravity(Gravity.CENTER);
-        seriesCard.addView(seriesLabel); seriesCard.addView(setText);
-        LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);
-        seriesParams.topMargin=dp(8);
-        stats.addView(seriesCard,seriesParams);
-        root.addView(stats);
-
-        statusText=text("PRONTO PARA COMEÇAR",14,0xFF59D6A5,true);
-        statusText.setGravity(Gravity.CENTER); statusText.setPadding(0,dp(12),0,dp(4)); root.addView(statusText);
-        timerText=text("DESCANSO  00:00",20,Color.WHITE,true);
-        timerText.setGravity(Gravity.CENTER); timerText.setPadding(0,dp(2),0,dp(12)); root.addView(timerText);
-
-        LinearLayout settings=card();
-        TextView st=text("CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);
-        st.setPadding(0,0,0,dp(10)); settings.addView(st);
-
-        LinearLayout row=new LinearLayout(this); row.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout c1=column(), c2=column();
-        addField(c1,"QUANTIDADE DE SÉRIES","3",true);
-        addField(c2,"FLEXÕES POR SÉRIE","10",false);
-        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1); p1.rightMargin=dp(6);
-        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1); p2.leftMargin=dp(6);
-        row.addView(c1,p1); row.addView(c2,p2); settings.addView(row);
-        LinearLayout restCol=column(); LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2); rp.topMargin=dp(10);
-        addField(restCol,"TEMPO DE DESCANSO (SEGUNDOS)","60",false); settings.addView(restCol,rp);
+        LinearLayout repCard=card();repCard.setGravity(Gravity.CENTER);
+        TextView repLabel=text("FLEXÕES",12,0xFF9EADBD,true);repLabel.setGravity(Gravity.CENTER);
+        countText=text("0",48,0xFF59D6A5,true);countText.setGravity(Gravity.CENTER);
+        repCard.addView(repLabel);repCard.addView(countText);stats.addView(repCard,new LinearLayout.LayoutParams(-1,-2));
+        LinearLayout seriesCard=card();seriesCard.setGravity(Gravity.CENTER);seriesCard.setBackground(round(0xFF203A36,16));
+        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFB7E8D5,true);seriesLabel.setGravity(Gravity.CENTER);
+        setText=text("1/3",32,0xFF59D6A5,true);setText.setGravity(Gravity.CENTER);
+        seriesCard.addView(seriesLabel);seriesCard.addView(setText);
+        LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);seriesParams.topMargin=dp(8);stats.addView(seriesCard,seriesParams);root.addView(stats);
+        statusText=text("PRONTO PARA COMEÇAR",14,0xFF59D6A5,true);statusText.setGravity(Gravity.CENTER);statusText.setPadding(0,dp(12),0,dp(4));root.addView(statusText);
+        timerText=text("DESCANSO  00:00",20,Color.WHITE,true);timerText.setGravity(Gravity.CENTER);timerText.setPadding(0,dp(2),0,dp(12));root.addView(timerText);
+        LinearLayout settings=card();TextView st=text("CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(10));settings.addView(st);
+        LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout c1=column(),c2=column();addField(c1,"QUANTIDADE DE SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);
+        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(6);
+        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(6);
+        row.addView(c1,p1);row.addView(c2,p2);settings.addView(row);
+        LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(10);
+        addField(restCol,"TEMPO DE DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
         TextView note=text("Exemplo: 3 séries × 10 flexões. O descanso começa sozinho ao completar cada série.",12,0xFF9EADBD,false);
-        note.setPadding(0,dp(8),0,0); settings.addView(note);
-        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2); sp.topMargin=dp(4); sp.bottomMargin=dp(12); root.addView(settings,sp);
-
-        startButton=new Button(this); startButton.setText("INICIAR TREINO");
-        startButton.setAllCaps(false); startButton.setTextSize(16); startButton.setTextColor(0xFF07110D);
-        startButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF59D6A5));
-        root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
-        stopButton=new Button(this); stopButton.setText("ENCERRAR TREINO"); stopButton.setAllCaps(false);
-        stopButton.setEnabled(false); root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(50)));
-        startButton.setOnClickListener(v->startWorkout()); stopButton.setOnClickListener(v->stopWorkout());
-        setContentView(scroll);
+        note.setPadding(0,dp(8),0,0);settings.addView(note);
+        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=dp(4);sp.bottomMargin=dp(12);root.addView(settings,sp);
+        startButton=new Button(this);startButton.setText("INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTextColor(0xFF07110D);
+        startButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF59D6A5));root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
+        stopButton=new Button(this);stopButton.setText("ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setEnabled(false);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(50)));
+        startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
+        return pageScroll(root);
+    }
+    private View buildProgressPage(){
+        LinearLayout root=column();
+        TextView title=text("SEU PROGRESSO",22,Color.WHITE,true);title.setGravity(Gravity.CENTER);title.setPadding(0,dp(12),0,dp(4));root.addView(title);
+        TextView hint=text("Deslize para a esquerda durante o treino para ver seu histórico.",12,0xFF9EADBD,false);
+        hint.setGravity(Gravity.CENTER);hint.setPadding(0,0,0,dp(16));root.addView(hint);
+        LinearLayout periodRow=new LinearLayout(this);periodRow.setOrientation(LinearLayout.HORIZONTAL);
+        String[] labels={"7 DIAS","MÊS","ANO"};
+        for(int i=0;i<3;i++){final int index=i;Button b=new Button(this);b.setText(labels[i]);b.setAllCaps(false);b.setTextSize(12);b.setOnClickListener(v->{progressPeriod=index;refreshProgress();});periodRow.addView(b,new LinearLayout.LayoutParams(0,dp(46),1));}
+        root.addView(periodRow);
+        LinearLayout summary=card();summary.setGravity(Gravity.CENTER);summary.setPadding(dp(14),dp(18),dp(14),dp(18));
+        progressSummary=text("0 FLEXÕES",30,0xFF59D6A5,true);progressSummary.setGravity(Gravity.CENTER);
+        progressDetail=text("0 treinos concluídos",14,0xFFB8C5D2,false);progressDetail.setGravity(Gravity.CENTER);progressDetail.setPadding(0,dp(6),0,0);
+        summary.addView(progressSummary);summary.addView(progressDetail);
+        LinearLayout.LayoutParams sumP=new LinearLayout.LayoutParams(-1,-2);sumP.topMargin=dp(12);root.addView(summary,sumP);
+        LinearLayout history=card();TextView h=text("HISTÓRICO DE TREINOS",14,Color.WHITE,true);history.addView(h);
+        TextView desc=text("Cada treino concluído ou encerrado fica salvo neste aparelho.",12,0xFF9EADBD,false);desc.setPadding(0,dp(5),0,dp(8));history.addView(desc);
+        LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,-2);hp.topMargin=dp(12);root.addView(history,hp);
+        return pageScroll(root);
+    }
+    private void refreshProgress(){
+        if(progressSummary==null)return;
+        JSONArray data=loadHistory();Calendar now=Calendar.getInstance();
+        Calendar start=(Calendar)now.clone();
+        if(progressPeriod==0){start.add(Calendar.DAY_OF_YEAR,-6);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
+        else if(progressPeriod==1){start.set(Calendar.DAY_OF_MONTH,1);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
+        else {start.set(Calendar.DAY_OF_YEAR,1);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
+        int repsSum=0,workouts=0,best=0;long from=start.getTimeInMillis();
+        for(int i=0;i<data.length();i++){JSONObject o=data.optJSONObject(i);if(o==null)continue;long time=o.optLong("time",0);if(time>=from&&time<=now.getTimeInMillis()){int n=o.optInt("reps",0);repsSum+=n;workouts++;best=Math.max(best,n);}}
+        String period=progressPeriod==0?"nos últimos 7 dias":progressPeriod==1?"neste mês":"neste ano";
+        progressSummary.setText(String.format(Locale.getDefault(),"%d FLEXÕES",repsSum));
+        progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" flexões");
+        LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(5);
+        while(history.getChildCount()>2)history.removeViewAt(2);
+        if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\nComplete um treino para começar seu histórico.",13,0xFF9EADBD,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
+        else{
+            for(int i=data.length()-1;i>=0;i--){JSONObject o=data.optJSONObject(i);if(o==null||o.optLong("time",0)<from)continue;
+                Calendar c=Calendar.getInstance();c.setTimeInMillis(o.optLong("time",0));
+                String date=String.format(Locale.getDefault(),"%02d/%02d/%04d",c.get(Calendar.DAY_OF_MONTH),c.get(Calendar.MONTH)+1,c.get(Calendar.YEAR));
+                TextView item=text("•  "+date+"     "+o.optInt("reps",0)+" flexões",14,Color.WHITE,false);item.setPadding(0,dp(8),0,dp(8));history.addView(item);
+            }
+        }
+    }
+    private JSONArray loadHistory(){
+        try{return new JSONArray(getSharedPreferences("flex_history",MODE_PRIVATE).getString("sessions","[]"));}
+        catch(Exception e){return new JSONArray();}
+    }
+    private void saveWorkout(){
+        if(sessionSaved||completedReps<=0)return;
+        try{JSONArray a=loadHistory();JSONObject o=new JSONObject();o.put("time",System.currentTimeMillis());o.put("reps",completedReps);o.put("sets",sets);a.put(o);
+            getSharedPreferences("flex_history",MODE_PRIVATE).edit().putString("sessions",a.toString()).apply();sessionSaved=true;
+        }catch(Exception ignored){}
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
@@ -154,7 +225,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(totalSets<1||totalSets>30||target<1||target>200||restSeconds<5||restSeconds>600){
             Toast.makeText(this,"Séries: 1 a 30. Flexões: 1 a 200. Descanso: 5 a 600 segundos.",Toast.LENGTH_LONG).show(); return;
         }
-        reps=0; sets=1; down=false; workout=true; resting=false; countingEnabled=false; updateStats();
+        reps=0; completedReps=0; sessionSaved=false; sets=1; down=false; workout=true; resting=false; countingEnabled=false; updateStats();
         setInputsEnabled(false); startButton.setEnabled(false); stopButton.setEnabled(true);
         statusText.setText("PREPARE-SE — POSICIONE-SE DE LADO");
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)
@@ -208,7 +279,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         detector.process(InputImage.fromMediaImage(media,proxy.getImageInfo().getRotationDegrees()))
             .addOnSuccessListener(p->{if(!workout||resting||!countingEnabled)return; Float a=armAngle(p); if(a==null)return;
                 long now=System.currentTimeMillis(); if(a<95)down=true;
-                else if(a>155&&down&&now-lastRepAt>500){down=false;lastRepAt=now;reps++;runOnUiThread(this::onRep);}
+                else if(a>155&&down&&now-lastRepAt>500){down=false;lastRepAt=now;reps++;completedReps++;runOnUiThread(this::onRep);}
             }).addOnCompleteListener(t->{proxy.close();processing.set(false);});
     }
     private Float armAngle(Pose p){
