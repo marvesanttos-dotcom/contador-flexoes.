@@ -129,7 +129,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private TextView centered(String value,int size,int color,boolean bold){
         TextView t=text(value,size,color,bold);t.setGravity(Gravity.CENTER);return t;
     }
-    private int sumRepsSince(long from){\n        JSONArray a=loadHistory();int sum=0;long now=System.currentTimeMillis();\n        for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null){long t=o.optLong("time",0);if(t>=from&&t<=now)sum+=o.optInt("reps",0);}}\n        return sum;\n    }\n    private View buildWorkoutPage(){
+    private int sumRepsSince(long from){
+        JSONArray a=loadHistory();int sum=0;long now=System.currentTimeMillis();
+        for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null){long t=o.optLong("time",0);if(t>=from&&t<=now)sum+=o.optInt("reps",0);}}
+        return sum;
+    }
+    private View buildWorkoutPage(){
         LinearLayout root=column();
         LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);
         TextView menu=centered("☰",27,0xFFFFC400,true);
@@ -166,7 +171,11 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
 
         LinearLayout quickStats=new LinearLayout(this);quickStats.setOrientation(LinearLayout.HORIZONTAL);
         String[] statNames={"HOJE","ESTA SEMANA","ESTE MÊS"};
-        Calendar statNow=Calendar.getInstance();\n        Calendar dayStart=(Calendar)statNow.clone();dayStart.set(Calendar.HOUR_OF_DAY,0);dayStart.set(Calendar.MINUTE,0);dayStart.set(Calendar.SECOND,0);dayStart.set(Calendar.MILLISECOND,0);\n        Calendar weekStart=(Calendar)dayStart.clone();weekStart.add(Calendar.DAY_OF_YEAR,-6);\n        Calendar monthStart=(Calendar)dayStart.clone();monthStart.set(Calendar.DAY_OF_MONTH,1);\n        String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
+        Calendar statNow=Calendar.getInstance();
+        Calendar dayStart=(Calendar)statNow.clone();dayStart.set(Calendar.HOUR_OF_DAY,0);dayStart.set(Calendar.MINUTE,0);dayStart.set(Calendar.SECOND,0);dayStart.set(Calendar.MILLISECOND,0);
+        Calendar weekStart=(Calendar)dayStart.clone();weekStart.add(Calendar.DAY_OF_YEAR,-6);
+        Calendar monthStart=(Calendar)dayStart.clone();monthStart.set(Calendar.DAY_OF_MONTH,1);
+        String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
         String[] statIcons={"▮","▥","🏆"};
         for(int i=0;i<3;i++){
             LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(5),dp(10),dp(5),dp(10));
@@ -247,7 +256,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" flexões");
         LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(4);
         while(history.getChildCount()>2)history.removeViewAt(2);
-        if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\nComplete um treino para começar seu histórico.",13,0xFFB8A88F,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
+        if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.
+Complete um treino para começar seu histórico.",13,0xFFB8A88F,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
         else{
             for(int i=data.length()-1;i>=0;i--){JSONObject o=data.optJSONObject(i);if(o==null||o.optLong("time",0)<from)continue;
                 Calendar c=Calendar.getInstance();c.setTimeInMillis(o.optLong("time",0));
