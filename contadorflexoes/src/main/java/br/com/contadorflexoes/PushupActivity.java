@@ -81,12 +81,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         shell.setBackgroundColor(0xFF080604);
         LinearLayout tabs=new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
-        tabs.setPadding(dp(12),dp(8),dp(12),dp(8));
+        tabs.setPadding(dp(8),dp(1),dp(8),dp(1));
         pageTabWorkout=text("TREINO",14,0xFFFFB000,true);
         pageTabProgress=text("PROGRESSO  ›",14,0xFFB8A88F,true);
         pageTabWorkout.setGravity(Gravity.CENTER); pageTabProgress.setGravity(Gravity.CENTER);
-        tabs.addView(pageTabWorkout,new LinearLayout.LayoutParams(0,dp(44),1));
-        tabs.addView(pageTabProgress,new LinearLayout.LayoutParams(0,dp(44),1));
+        tabs.addView(pageTabWorkout,new LinearLayout.LayoutParams(0,dp(34),1));
+        tabs.addView(pageTabProgress,new LinearLayout.LayoutParams(0,dp(34),1));
         shell.addView(tabs);
         pages=new ViewFlipper(this);
         pages.addView(buildWorkoutPage());
@@ -136,26 +136,15 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private View buildWorkoutPage(){
         LinearLayout root=column();
-        LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);
-        TextView menu=centered("☰",27,0xFFFFC400,true);
-        header.addView(menu,new LinearLayout.LayoutParams(dp(42),dp(48)));
-        LinearLayout heading=column();
-        TextView title=text("Contador de",17,Color.WHITE,true);
-        TextView title2=text("FLEXÕES",27,0xFFFFC400,true);
-        heading.addView(title);heading.addView(title2);
-        header.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
-        TextView crown=centered("♛",30,0xFFFFC400,true);header.addView(crown,new LinearLayout.LayoutParams(dp(46),dp(48)));
-        TextView gear=centered("⚙",27,0xFFFFC400,true);header.addView(gear,new LinearLayout.LayoutParams(dp(42),dp(48)));
-        gear.setOnClickListener(v->{ScrollView sc=(ScrollView)root.getParent();if(sc!=null)sc.smoothScrollTo(0,root.getHeight());});
-        root.addView(header);
-        TextView tagline=centered("SEU DESAFIO  •  SUA EVOLUÇÃO",11,0xFFD9B65A,true);
-        tagline.setPadding(0,0,0,dp(10));root.addView(tagline);
+        root.setPadding(dp(8),dp(2),dp(8),dp(6));
+        TextView tagline=centered("SEU TREINO  •  SUA EVOLUÇÃO",10,0xFFD9B65A,true);
+        tagline.setPadding(0,0,0,dp(4));root.addView(tagline);
 
         LinearLayout hero=premiumPanel();hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);
         ImageView heroImage=new ImageView(this);
         try{heroImage.setImageResource(R.mipmap.ic_launcher);}catch(Exception ignored){}
         heroImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(112),dp(124)));
+        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(82),dp(88)));
         LinearLayout repBlock=column();repBlock.setGravity(Gravity.CENTER);
         LinearLayout seriesRow=new LinearLayout(this);seriesRow.setGravity(Gravity.CENTER);
         TextView flexIcon=centered("💪",20,0xFFFFC400,true);seriesRow.addView(flexIcon);
@@ -167,7 +156,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView repCaption=centered("FLEXÕES",11,0xFFD9B65A,true);repBlock.addView(repCaption);
         TextView targetCaption=centered("META DA SÉRIE  •  10",12,0xFFFFC400,true);repBlock.addView(targetCaption);
         hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
-        LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,-2);heroP.bottomMargin=dp(10);root.addView(hero,heroP);
+        LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,dp(116));heroP.bottomMargin=dp(6);root.addView(hero,heroP);
 
         LinearLayout quickStats=new LinearLayout(this);quickStats.setOrientation(LinearLayout.HORIZONTAL);
         String[] statNames={"HOJE","ESTA SEMANA","ESTE MÊS"};
@@ -182,14 +171,14 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             item.addView(centered(statIcons[i],19,0xFFFFC400,true));
             item.addView(centered(statNames[i],10,Color.WHITE,true));
             item.addView(centered(statValues[i],22,Color.WHITE,true));
-            LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,dp(88),1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
+            LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,dp(68),1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
         }
-        LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,-2);qsp.bottomMargin=dp(10);root.addView(quickStats,qsp);
+        LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,-2);qsp.bottomMargin=dp(6);root.addView(quickStats,qsp);
 
         LinearLayout cameraCard=premiumPanel();cameraCard.setGravity(Gravity.CENTER);
         cameraIndicator=centered("●  CÂMERA AGUARDANDO",12,0xFFFFC400,true);cameraCard.addView(cameraIndicator);
         TextView cameraNote=centered("Câmera frontal ativa • imagem não exibida",10,0xFFB8A88F,false);cameraNote.setPadding(0,dp(3),0,0);cameraCard.addView(cameraNote);
-        LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.bottomMargin=dp(10);root.addView(cameraCard,cp);
+        LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,dp(46));cp.bottomMargin=dp(6);root.addView(cameraCard,cp);
 
         LinearLayout timerCard=premiumPanel();timerCard.setOrientation(LinearLayout.HORIZONTAL);timerCard.setGravity(Gravity.CENTER_VERTICAL);
         TextView clock=centered("◷",42,0xFFFFC400,true);timerCard.addView(clock,new LinearLayout.LayoutParams(dp(58),dp(70)));
@@ -197,31 +186,31 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView timerTitle=text("DESCANSO",12,Color.WHITE,true);timerCol.addView(timerTitle);
         timerText=text("00:00",35,0xFFFFC400,true);timerCol.addView(timerText);
         timerCard.addView(timerCol,new LinearLayout.LayoutParams(0,-2,1));
-        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-1,-2);tp.bottomMargin=dp(10);root.addView(timerCard,tp);
+        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-1,dp(62));tp.bottomMargin=dp(4);root.addView(timerCard,tp);
 
         statusText=centered("PRONTO PARA COMEÇAR",13,0xFFFFC400,true);
-        statusText.setPadding(0,dp(4),0,dp(8));root.addView(statusText);
+        statusText.setPadding(0,dp(1),0,dp(3));root.addView(statusText);
 
-        LinearLayout settings=premiumPanel();
-        TextView st=text("⚙  CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(10));settings.addView(st);
+        LinearLayout settings=premiumPanel();settings.setPadding(dp(10),dp(8),dp(10),dp(8));
+        TextView st=text("⚙  CONFIGURAÇÕES",12,Color.WHITE,true);st.setPadding(0,0,0,dp(5));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout c1=column(),c2=column();addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);
         LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(6);
         LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(6);
         row.addView(c1,p1);row.addView(c2,p2);settings.addView(row);
-        LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(10);
+        LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(5);
         addField(restCol,"DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
         TextView note=text("O descanso começa automaticamente ao concluir cada série.",11,0xFFB8A88F,false);
-        note.setPadding(0,dp(8),0,0);settings.addView(note);
-        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.bottomMargin=dp(10);root.addView(settings,sp);
+        note.setPadding(0,dp(4),0,0);settings.addView(note);
+        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.bottomMargin=dp(5);root.addView(settings,sp);
 
         startButton=new Button(this);startButton.setText("▶   INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTypeface(null,1);startButton.setTextColor(0xFF100B00);
         startButton.setBackground(premiumCard(0xFFFFC400,0xFFFFE47A,28));
-        root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
+        root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(44)));
         stopButton=new Button(this);stopButton.setText("■   ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setTextSize(13);stopButton.setTextColor(0xFFE8DCC2);stopButton.setBackground(premiumCard(0xFF15110B,0xFF70521A,26));
-        root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(48)));
+        stopButton.setVisibility(View.GONE);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(38)));
         startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
-        return pageScroll(root);
+        return root;
     }
     private View buildProgressPage(){
         LinearLayout root=column();
@@ -293,7 +282,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             Toast.makeText(this,"Séries: 1 a 30. Flexões: 1 a 200. Descanso: 5 a 600 segundos.",Toast.LENGTH_LONG).show(); return;
         }
         reps=0; completedReps=0; sessionSaved=false; sets=1; down=false; workout=true; resting=false; countingEnabled=false; updateStats();
-        setInputsEnabled(false); startButton.setEnabled(false); stopButton.setEnabled(true);
+        setInputsEnabled(false); startButton.setEnabled(false); stopButton.setVisibility(View.VISIBLE); stopButton.setEnabled(true);
         statusText.setText("PREPARE-SE — POSICIONE-SE DE LADO");
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},77);
@@ -387,7 +376,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
         vibrate(); if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
-        setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
+        setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);stopButton.setVisibility(View.GONE);
     }
     private void vibrate(){
         try{Vibrator v=(Vibrator)getSystemService(Context.VIBRATOR_SERVICE);if(v!=null){
