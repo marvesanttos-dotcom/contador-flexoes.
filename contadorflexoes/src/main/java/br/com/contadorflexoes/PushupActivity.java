@@ -79,17 +79,21 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(-1,dp(185)); pp.bottomMargin=dp(12);
         root.addView(preview,pp);
 
-        LinearLayout stats=new LinearLayout(this); stats.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout stats=column();
         LinearLayout repCard=card(); repCard.setGravity(Gravity.CENTER);
         TextView repLabel=text("FLEXÕES",12,0xFF9EADBD,true); repLabel.setGravity(Gravity.CENTER);
         countText=text("0",48,0xFF59D6A5,true); countText.setGravity(Gravity.CENTER);
         repCard.addView(repLabel); repCard.addView(countText);
+        stats.addView(repCard,new LinearLayout.LayoutParams(-1,-2));
+
         LinearLayout seriesCard=card(); seriesCard.setGravity(Gravity.CENTER);
-        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFF9EADBD,true); seriesLabel.setGravity(Gravity.CENTER);
-        setText=text("1 / 3",25,Color.WHITE,true); setText.setGravity(Gravity.CENTER);
+        seriesCard.setBackground(round(0xFF203A36,16));
+        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFB7E8D5,true); seriesLabel.setGravity(Gravity.CENTER);
+        setText=text("1 de 3",27,0xFF59D6A5,true); setText.setGravity(Gravity.CENTER);
         seriesCard.addView(seriesLabel); seriesCard.addView(setText);
-        LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1); half.rightMargin=dp(6);
-        stats.addView(repCard,half); LinearLayout.LayoutParams half2=new LinearLayout.LayoutParams(0,-2,1); half2.leftMargin=dp(6); stats.addView(seriesCard,half2);
+        LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);
+        seriesParams.topMargin=dp(8);
+        stats.addView(seriesCard,seriesParams);
         root.addView(stats);
 
         statusText=text("PRONTO PARA COMEÇAR",14,0xFF59D6A5,true);
@@ -197,7 +201,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(remaining<=0){resting=false;reps=0;sets++;updateStats();statusText.setText("VAMOS! PRÓXIMA SÉRIE");timerText.setText("DESCANSO  00:00");vibrate();return;}
         remaining--; restTick=this::tickRest; handler.postDelayed(restTick,1000);
     }
-    private void updateStats(){countText.setText(String.valueOf(reps));setText.setText(sets+" / "+totalSets);}
+    private void updateStats(){countText.setText(String.valueOf(reps));setText.setText(sets+" de "+totalSets);}
     private void finishWorkout(){
         workout=false;resting=false;statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
