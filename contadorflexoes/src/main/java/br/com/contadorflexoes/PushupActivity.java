@@ -4,6 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.os.*;
 import android.view.Gravity;
 import android.view.View;
@@ -89,7 +93,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         LinearLayout seriesCard=card(); seriesCard.setGravity(Gravity.CENTER);
         seriesCard.setBackground(round(0xFF203A36,16));
         TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFB7E8D5,true); seriesLabel.setGravity(Gravity.CENTER);
-        setText=text("1 de 3",27,0xFF59D6A5,true); setText.setGravity(Gravity.CENTER);
+        setText=text("1/3",32,0xFF59D6A5,true); setText.setGravity(Gravity.CENTER);
         seriesCard.addView(seriesLabel); seriesCard.addView(setText);
         LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);
         seriesParams.topMargin=dp(8);
@@ -201,7 +205,17 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(remaining<=0){resting=false;reps=0;sets++;updateStats();statusText.setText("VAMOS! PRÓXIMA SÉRIE");timerText.setText("DESCANSO  00:00");vibrate();return;}
         remaining--; restTick=this::tickRest; handler.postDelayed(restTick,1000);
     }
-    private void updateStats(){countText.setText(String.valueOf(reps));setText.setText(sets+" de "+totalSets);}
+    private void updateStats(){
+        countText.setText(String.valueOf(reps));
+        String progress=sets+"/"+totalSets;
+        SpannableString styled=new SpannableString(progress);
+        int slash=progress.indexOf("/");
+        if(slash>=0){
+            styled.setSpan(new ForegroundColorSpan(0xFF8BA99F),slash,slash+1,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(new RelativeSizeSpan(0.78f),slash,slash+1,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        setText.setText(styled);
+    }
     private void finishWorkout(){
         workout=false;resting=false;statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
