@@ -216,7 +216,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             clip.reset();clip.addOval(new RectF(0,0,w,h),Path.Direction.CW);
             int save=canvas.save();canvas.clipPath(clip);
             // Crop the launcher artwork before its small bottom shortcut symbols.
-            android.graphics.Rect src=new android.graphics.Rect(0,0,bitmap.getWidth(),(int)(bitmap.getHeight()*0.82f));
+            android.graphics.Rect src=new android.graphics.Rect(0,0,bitmap.getWidth(),(int)(bitmap.getHeight()*0.78f));
             canvas.drawBitmap(bitmap,src,new RectF(0,0,w,h),p);
             canvas.restoreToCount(save);
         }
@@ -346,7 +346,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
-        TextView label=text(caption,9,0xFFD8C5A3,true); label.setSingleLine(true);label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
+        TextView label=text(caption,10,0xFFD8C5A3,true); label.setSingleLine(true);label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
         LinearLayout control=new LinearLayout(this);control.setGravity(Gravity.CENTER);control.setOrientation(LinearLayout.HORIZONTAL);control.setPadding(dp(2),dp(2),dp(2),dp(2));control.setBackground(round(0xFF303030,24));
         Button minus=new Button(this);minus.setText("−");minus.setTextSize(17);minus.setMinWidth(0);minus.setMinimumWidth(0);minus.setPadding(0,0,0,0);
         minus.setTextColor(0xFFFFC400);minus.setBackground(round(0xFF252525,24));
