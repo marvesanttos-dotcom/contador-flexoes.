@@ -179,12 +179,10 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }
         LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,-2);qsp.bottomMargin=dp(9);root.addView(quickStats,qsp);
 
-        LinearLayout timerArea=column();timerArea.setGravity(Gravity.CENTER);
         restCircle=new CircleTimerView(this);
-        LinearLayout.LayoutParams circleP=new LinearLayout.LayoutParams(dp(154),dp(154));
-        circleP.bottomMargin=dp(7);timerArea.addView(restCircle,circleP);
         restCircle.setDisplay("00:00","DESCANSO",0f);
-        root.addView(timerArea,new LinearLayout.LayoutParams(-1,dp(164)));
+        LinearLayout.LayoutParams timerP=new LinearLayout.LayoutParams(-1,dp(142));
+        timerP.bottomMargin=dp(7);root.addView(restCircle,timerP);
 
         statusText=centered("PRONTO PARA COMEÇAR",13,0xFFFFC400,true);
         statusText.setPadding(0,dp(3),0,dp(6));root.addView(statusText);
@@ -192,12 +190,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         LinearLayout settings=premiumPanel();settings.setPadding(dp(12),dp(11),dp(12),dp(11));
         TextView st=text("⚙  CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(8));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout c1=column(),c2=column();addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);
-        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(6);
-        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(6);
-        row.addView(c1,p1);row.addView(c2,p2);settings.addView(row);
-        LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(8);
-        addField(restCol,"DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
+        LinearLayout c1=column(),c2=column(),c3=column();
+        addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES / SÉRIE","10",false);addField(c3,"DESCANSO (SEG)","60",false);
+        LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(4);
+        LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(3);p2.rightMargin=dp(3);
+        LinearLayout.LayoutParams p3=new LinearLayout.LayoutParams(0,-2,1);p3.leftMargin=dp(4);
+        row.addView(c1,p1);row.addView(c2,p2);row.addView(c3,p3);settings.addView(row);
         TextView note=text("O descanso começa automaticamente ao concluir cada série.",11,0xFFB8A88F,false);
         note.setPadding(0,dp(7),0,0);settings.addView(note);
         LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.bottomMargin=dp(2);root.addView(settings,sp);
@@ -213,24 +211,43 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
 
     private class CircleTimerView extends View {
         private final Paint paint=new Paint(3);
-        private final RectF arc=new RectF();
+        private final RectF frame=new RectF(), inner=new RectF();
         private String value="00:00", label="DESCANSO";
         private float progress=0f;
         CircleTimerView(Context c){super(c);}
         void setDisplay(String v,String l,float p){value=v;label=l;progress=Math.max(0f,Math.min(1f,p));invalidate();}
         @Override protected void onDraw(Canvas c){
             super.onDraw(c);
-            float cx=getWidth()/2f,cy=getHeight()/2f,radius=Math.min(cx,cy)-dp(11);
-            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(7));paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setColor(0xFF29231A);c.drawCircle(cx,cy,radius,paint);
-            arc.set(cx-radius,cy-radius,cx+radius,cy+radius);
-            paint.setColor(0xFFFFC400);c.drawArc(arc,-90,360*progress,false,paint);
+            float w=getWidth(),h=getHeight(),pad=dp(5);
+            frame.set(pad,pad,w-pad,h-pad);
+            paint.setStyle(Paint.Style.FILL);paint.setColor(0xFF090909);
+            c.drawRoundRect(frame,dp(24),dp(24),paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFB900);
+            c.drawRoundRect(frame,dp(24),dp(24),paint);
+            inner.set(dp(14),dp(14),w-dp(14),h-dp(14));
+            paint.setStrokeWidth(dp(1));paint.setColor(0xFF594016);
+            c.drawRoundRect(inner,dp(19),dp(19),paint);
+            float mid=h/2f;
+            paint.setStrokeWidth(dp(5));paint.setStrokeCap(Paint.Cap.SQUARE);
+            for(int i=0;i<12;i++){
+                float x=dp(25)+i*dp(7);
+                paint.setColor(i<Math.round(progress*12)?0xFFFFC400:0xFF3B2B10);
+                c.drawLine(x,mid-dp(20),x,mid+dp(20),paint);
+                float xr=w-dp(25)-i*dp(7);
+                c.drawLine(xr,mid-dp(20),xr,mid+dp(20),paint);
+            }
             paint.setStyle(Paint.Style.FILL);paint.setTextAlign(Paint.Align.CENTER);
             paint.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD));
-            paint.setTextSize(dp(29));paint.setColor(Color.WHITE);c.drawText(value,cx,cy+dp(8),paint);
-            paint.setTextSize(dp(10));paint.setColor(0xFFFFC400);c.drawText(label,cx,cy+dp(29),paint);
-            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(1));paint.setColor(0xFF604817);c.drawCircle(cx,cy,radius+dp(7),paint);
+            paint.setTextSize(dp(12));paint.setColor(0xFFE9E2D7);
+            c.drawText(label,cx(),dp(35),paint);
+            paint.setTextSize(dp(42));paint.setColor(0xFFFFC400);
+            c.drawText(value,cx(),mid+dp(15),paint);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFC400);
+            c.drawRoundRect(dp(20),h-dp(13),w-dp(20),h-dp(10),dp(2),dp(2),paint);
+            paint.setStyle(Paint.Style.FILL);paint.setColor(0xFFFFC400);
+            c.drawRoundRect(dp(20),h-dp(13),dp(20)+(w-dp(40))*progress,h-dp(10),dp(2),dp(2),paint);
         }
+        private float cx(){return getWidth()/2f;}
     }
 
     private View buildProgressPage(){
@@ -287,13 +304,23 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
-        TextView label=text(caption,11,0xFFD8C5A3,true); label.setPadding(0,0,0,dp(5)); parent.addView(label);
-        EditText e=new EditText(this); e.setSingleLine(true); e.setInputType(2); e.setText(initial);
-        e.setTextColor(Color.WHITE); e.setTextSize(18); e.setSelectAllOnFocus(true);
-        e.setGravity(Gravity.CENTER); e.setPadding(dp(8),0,dp(8),0);
-        e.setBackground(round(0xFF302416,10));
-        parent.addView(e,new LinearLayout.LayoutParams(-1,dp(56)));
-        if(series)seriesInput=e; else if(caption.startsWith("FLEXÕES"))targetInput=e; else restInput=e;
+        TextView label=text(caption,9,0xFFD8C5A3,true); label.setPadding(0,0,0,dp(6)); parent.addView(label);
+        LinearLayout control=new LinearLayout(this);control.setGravity(Gravity.CENTER);control.setOrientation(LinearLayout.HORIZONTAL);
+        Button minus=new Button(this);minus.setText("−");minus.setTextSize(17);minus.setMinWidth(0);minus.setMinimumWidth(0);minus.setPadding(0,0,0,0);
+        minus.setTextColor(0xFFFFC400);minus.setBackground(round(0xFF211A10,9));
+        EditText e=new EditText(this);e.setSingleLine(true);e.setInputType(2);e.setText(initial);
+        e.setTextColor(Color.WHITE);e.setTextSize(18);e.setSelectAllOnFocus(true);e.setGravity(Gravity.CENTER);
+        e.setPadding(0,0,0,0);e.setBackground(round(0xFF302416,9));
+        Button plus=new Button(this);plus.setText("+");plus.setTextSize(17);plus.setMinWidth(0);plus.setMinimumWidth(0);plus.setPadding(0,0,0,0);
+        plus.setTextColor(0xFFFFC400);plus.setBackground(round(0xFF211A10,9));
+        LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(dp(30),dp(46));
+        control.addView(minus,bp);LinearLayout.LayoutParams ep=new LinearLayout.LayoutParams(0,dp(46),1);ep.leftMargin=dp(3);ep.rightMargin=dp(3);control.addView(e,ep);control.addView(plus,new LinearLayout.LayoutParams(dp(30),dp(46)));
+        parent.addView(control);
+        int min=series?1:1,max=series?30:caption.startsWith("FLEXÕES")?200:600;
+        int step=caption.startsWith("DESCANSO")?5:1;
+        minus.setOnClickListener(v->{try{int n=Integer.parseInt(e.getText().toString());e.setText(String.valueOf(Math.max(min,n-step)));}catch(Exception ignored){}});
+        plus.setOnClickListener(v->{try{int n=Integer.parseInt(e.getText().toString());e.setText(String.valueOf(Math.min(max,n+step)));}catch(Exception ignored){}});
+        if(series)seriesInput=e;else if(caption.startsWith("FLEXÕES"))targetInput=e;else restInput=e;
     }
 
     private void startWorkout(){
