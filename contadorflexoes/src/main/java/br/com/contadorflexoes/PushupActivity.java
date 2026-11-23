@@ -27,18 +27,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PushupActivity extends androidx.activity.ComponentActivity {
-    private PreviewView preview;
-    private TextView countText, setText, statusText, timerText;
+    
+    private TextView countText, setText, statusText, timerText, cameraIndicator;
     private EditText seriesInput, targetInput, restInput;
     private Button startButton, stopButton;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private ExecutorService cameraExecutor;
     private PoseDetector detector;
     private ProcessCameraProvider cameraProvider;
-    private boolean workout=false, down=false, resting=false, cameraStarted=false;
+    private boolean workout=false, down=false, resting=false, cameraStarted=false, countingEnabled=false;
     private int reps=0, sets=1, totalSets=3, target=10, restSeconds=60, remaining=0;
     private long lastRepAt=0;
-    private Runnable restTick;
+    private Runnable restTick, countdownTick;
+    private int countdownSeconds=3;
     private final AtomicBoolean processing=new AtomicBoolean(false);
 
     @Override public void onCreate(Bundle b) {
@@ -78,10 +79,15 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFF9EADBD,false);
         hint.setGravity(Gravity.CENTER); hint.setPadding(dp(8),dp(3),dp(8),dp(10)); root.addView(hint);
 
-        preview=new PreviewView(this); preview.setScaleType(PreviewView.ScaleType.FILL_CENTER);
-        preview.setBackground(round(0xFF202B38,14));
-        LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(-1,dp(185)); pp.bottomMargin=dp(12);
-        root.addView(preview,pp);
+        LinearLayout cameraCard=card(); cameraCard.setGravity(Gravity.CENTER);
+        cameraIndicator=text("●  CÂMERA EM USO",14,0xFF59D6A5,true);
+        cameraIndicator.setGravity(Gravity.CENTER);
+        cameraCard.addView(cameraIndicator);
+        TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFF9EADBD,false);
+        cameraNote.setGravity(Gravity.CENTER); cameraNote.setPadding(0,dp(4),0,0);
+        cameraCard.addView(cameraNote);
+        LinearLayout.LayoutParams cameraParams=new LinearLayout.LayoutParams(-1,-2); cameraParams.bottomMargin=dp(12);
+        root.addView(cameraCard,cameraParams);
 
         LinearLayout stats=column();
         LinearLayout repCard=card(); repCard.setGravity(Gravity.CENTER);
@@ -148,7 +154,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(totalSets<1||totalSets>30||target<1||target>200||restSeconds<5||restSeconds>600){
             Toast.makeText(this,"Séries: 1 a 30. Flexões: 1 a 200. Descanso: 5 a 600 segundos.",Toast.LENGTH_LONG).show(); return;
         }
-        reps=0; sets=1; down=false; workout=true; resting=false; updateStats();
+        reps=0; sets=1; down=false; workout=true; resting=false; countingEnabled=false; updateStats();
         setInputsEnabled(false); startButton.setEnabled(false); stopButton.setEnabled(true);
         statusText.setText("PREPARE-SE — POSICIONE-SE DE LADO");
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED)
@@ -165,19 +171,42 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(cameraStarted)return;
         ListenableFuture<ProcessCameraProvider> f=ProcessCameraProvider.getInstance(this);
         f.addListener(()->{try{
-            cameraProvider=f.get(); Preview p=new Preview.Builder().build(); p.setSurfaceProvider(preview.getSurfaceProvider());
+            cameraProvider=f.get();
             ImageAnalysis a=new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
             a.setAnalyzer(cameraExecutor,this::analyze); cameraProvider.unbindAll();
-            cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,p,a); cameraStarted=true;
-            statusText.setText("CÂMERA ATIVA — PODE COMEÇAR");
+            cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,a); cameraStarted=true;
+            cameraIndicator.setText("●  CÂMERA EM USO");
+            startCountdown();
         }catch(Exception e){statusText.setText("NÃO FOI POSSÍVEL ABRIR A CÂMERA");}},ContextCompat.getMainExecutor(this));
+    }
+    private void startCountdown(){
+        countingEnabled=false; countdownSeconds=3;
+        statusText.setText("PREPARE-SE");
+        timerText.setText("COMEÇANDO EM 3");
+        if(countdownTick!=null)handler.removeCallbacks(countdownTick);
+        countdownTick=new Runnable(){
+            @Override public void run(){
+                if(!workout)return;
+                if(countdownSeconds>1){
+                    countdownSeconds--;
+                    timerText.setText("COMEÇANDO EM "+countdownSeconds);
+                    handler.postDelayed(this,1000);
+                }else{
+                    countingEnabled=true;
+                    timerText.setText("DESCANSO  00:00");
+                    statusText.setText("VALENDO! PODE COMEÇAR");
+                    vibrate();
+                }
+            }
+        };
+        handler.postDelayed(countdownTick,1000);
     }
     private void analyze(ImageProxy proxy){
         if(!processing.compareAndSet(false,true)){proxy.close();return;}
         android.media.Image media=proxy.getImage();
         if(media==null){processing.set(false);proxy.close();return;}
         detector.process(InputImage.fromMediaImage(media,proxy.getImageInfo().getRotationDegrees()))
-            .addOnSuccessListener(p->{if(!workout||resting)return; Float a=armAngle(p); if(a==null)return;
+            .addOnSuccessListener(p->{if(!workout||resting||!countingEnabled)return; Float a=armAngle(p); if(a==null)return;
                 long now=System.currentTimeMillis(); if(a<95)down=true;
                 else if(a>155&&down&&now-lastRepAt>500){down=false;lastRepAt=now;reps++;runOnUiThread(this::onRep);}
             }).addOnCompleteListener(t->{proxy.close();processing.set(false);});
@@ -217,7 +246,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         setText.setText(styled);
     }
     private void finishWorkout(){
-        workout=false;resting=false;statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
         vibrate(); if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
@@ -228,7 +257,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }}catch(Exception ignored){}
     }
     private void stopWorkout(){
-        workout=false;resting=false;if(restTick!=null)handler.removeCallbacks(restTick);
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);
         if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
         statusText.setText("TREINO ENCERRADO");timerText.setText("DESCANSO  00:00");
