@@ -1,4 +1,4 @@
-name: Android APK
+name: Android APKs
 on:
   push:
     branches: [ "main" ]
@@ -20,11 +20,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-      - name: Build debug APK
-        run: gradle assembleDebug
-      - name: Upload APK
+      - name: Build both APKs
+        run: gradle :app:assembleDebug :contadorflexoes:assembleDebug
+      - name: Upload Player Programado
         uses: actions/upload-artifact@v4
         with:
           name: player-programado-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Upload Contador de Flexões
+        uses: actions/upload-artifact@v4
+        with:
+          name: contador-flexoes-debug
+          path: contadorflexoes/build/outputs/apk/debug/contadorflexoes-debug.apk
           if-no-files-found: error
