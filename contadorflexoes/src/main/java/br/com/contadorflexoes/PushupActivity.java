@@ -71,7 +71,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
 
         TextView title=text("CONTADOR DE FLEXÕES",20,Color.WHITE,true);
         title.setGravity(Gravity.CENTER); title.setPadding(0,dp(4),0,dp(4)); root.addView(title);
-        TextView hint=text("Deixe o corpo inteiro visível e posicione o celular de lado.",13,0xFF9EADBD,false);
+        TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFF9EADBD,false);
         hint.setGravity(Gravity.CENTER); hint.setPadding(dp(8),dp(3),dp(8),dp(10)); root.addView(hint);
 
         preview=new PreviewView(this); preview.setScaleType(PreviewView.ScaleType.FILL_CENTER);
@@ -164,7 +164,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             cameraProvider=f.get(); Preview p=new Preview.Builder().build(); p.setSurfaceProvider(preview.getSurfaceProvider());
             ImageAnalysis a=new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
             a.setAnalyzer(cameraExecutor,this::analyze); cameraProvider.unbindAll();
-            cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_BACK_CAMERA,p,a); cameraStarted=true;
+            cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,p,a); cameraStarted=true;
             statusText.setText("CÂMERA ATIVA — PODE COMEÇAR");
         }catch(Exception e){statusText.setText("NÃO FOI POSSÍVEL ABRIR A CÂMERA");}},ContextCompat.getMainExecutor(this));
     }
