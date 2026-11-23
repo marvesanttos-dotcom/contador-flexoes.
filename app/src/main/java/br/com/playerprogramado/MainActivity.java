@@ -73,36 +73,36 @@ public class MainActivity extends Activity {
     private void buildScreen() {
         LinearLayout root=new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(24,24,24,24);
-        root.setBackgroundColor(0xFF000000);
+        root.setPadding(18,18,18,22);
+        root.setBackgroundColor(0xFF10151B);
         
-        LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(16,12,16,12); timerCard.setBackground(roundedBackground(0xFF0A0A0A,20));
+        LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(16,12,16,12); timerCard.setBackground(roundedBackground(0xFF1B242D,20));
         LinearLayout.LayoutParams timerCardParams=new LinearLayout.LayoutParams(-1,-2); timerCardParams.setMargins(0,0,0,8); root.addView(timerCard,timerCardParams);
-        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFFFFFFFF); timerTitle.setPadding(2,0,0,8); timerCard.addView(timerTitle);
+        TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFF55C8F0); timerTitle.setPadding(2,0,0,8); timerCard.addView(timerTitle);
         LinearLayout timerFields=new LinearLayout(this); timerFields.setOrientation(LinearLayout.HORIZONTAL); timerFields.setGravity(Gravity.CENTER); timerCard.addView(timerFields);
-        LinearLayout playingTile=new LinearLayout(this); playingTile.setOrientation(LinearLayout.VERTICAL); playingTile.setGravity(Gravity.CENTER); playingTile.setPadding(6,4,6,4); playingTile.setBackground(roundedBackground(0xFF111111,18));
+        LinearLayout playingTile=new LinearLayout(this); playingTile.setOrientation(LinearLayout.VERTICAL); playingTile.setGravity(Gravity.CENTER); playingTile.setPadding(6,4,6,4); playingTile.setBackground(roundedBackground(0xFF252F39,18));
         TextView playingLabel=new TextView(this); playingLabel.setText("TOCANDO"); playingLabel.setTextSize(13); playingLabel.setTypeface(null,1); playingLabel.setTextColor(0xFFFFFFFF); playingLabel.setGravity(Gravity.CENTER); playingLabel.setIncludeFontPadding(false); LinearLayout.LayoutParams playingLabelParams=new LinearLayout.LayoutParams(-1,38); playingLabelParams.bottomMargin=8; playingTile.addView(playingLabel,playingLabelParams);
-        LinearLayout playingBalloon=new LinearLayout(this); playingBalloon.setOrientation(LinearLayout.VERTICAL); playingBalloon.setGravity(Gravity.CENTER); playingBalloon.setPadding(8,4,8,4); GradientDrawable playingBg=roundedBackground(0xFF050505,14); playingBg.setStroke(1,0xFF777777); playingBalloon.setBackground(playingBg);
+        LinearLayout playingBalloon=new LinearLayout(this); playingBalloon.setOrientation(LinearLayout.VERTICAL); playingBalloon.setGravity(Gravity.CENTER); playingBalloon.setPadding(8,4,8,4); GradientDrawable playingBg=roundedBackground(0xFF111A22,14); playingBg.setStroke(2,0xFF39BDEB); playingBalloon.setBackground(playingBg);
         onMinutesField=new EditText(this); onMinutesField.setSingleLine(true); onMinutesField.setInputType(2); onMinutesField.setText(String.valueOf(prefs.getInt("cycle_on",1))); styleMinuteField(onMinutesField,""); onMinutesField.setTextSize(20); onMinutesField.setTypeface(null,1); onMinutesField.setTextColor(0xFFFFFFFF); onMinutesField.setBackgroundColor(0x00000000); onMinutesField.setSelectAllOnFocus(true); onMinutesField.setGravity(Gravity.CENTER); onMinutesField.setIncludeFontPadding(false); onMinutesField.setMinWidth(0); playingBalloon.addView(onMinutesField,new LinearLayout.LayoutParams(-1,64));
         TextView onUnit=new TextView(this); onUnit.setText("MINUTOS"); onUnit.setTextSize(10); onUnit.setTypeface(null,1); onUnit.setTextColor(0xFFBBBBBB); onUnit.setGravity(Gravity.CENTER); playingBalloon.addView(onUnit); playingTile.addView(playingBalloon,new LinearLayout.LayoutParams(-1,104));
         timerFields.addView(playingTile,new LinearLayout.LayoutParams(0,160,1));
-        LinearLayout stoppedTile=new LinearLayout(this); stoppedTile.setOrientation(LinearLayout.VERTICAL); stoppedTile.setGravity(Gravity.CENTER); stoppedTile.setPadding(6,4,6,4); stoppedTile.setBackground(roundedBackground(0xFF111111,18));
+        LinearLayout stoppedTile=new LinearLayout(this); stoppedTile.setOrientation(LinearLayout.VERTICAL); stoppedTile.setGravity(Gravity.CENTER); stoppedTile.setPadding(6,4,6,4); stoppedTile.setBackground(roundedBackground(0xFF252F39,18));
         TextView stoppedLabel=new TextView(this); stoppedLabel.setText("PARADO"); stoppedLabel.setTextSize(13); stoppedLabel.setTypeface(null,1); stoppedLabel.setTextColor(0xFFFFFFFF); stoppedLabel.setGravity(Gravity.CENTER); stoppedLabel.setIncludeFontPadding(false); LinearLayout.LayoutParams stoppedLabelParams=new LinearLayout.LayoutParams(-1,38); stoppedLabelParams.bottomMargin=8; stoppedTile.addView(stoppedLabel,stoppedLabelParams);
-        LinearLayout stoppedBalloon=new LinearLayout(this); stoppedBalloon.setOrientation(LinearLayout.VERTICAL); stoppedBalloon.setGravity(Gravity.CENTER); stoppedBalloon.setPadding(8,4,8,4); GradientDrawable stoppedBg=roundedBackground(0xFF050505,14); stoppedBg.setStroke(1,0xFF777777); stoppedBalloon.setBackground(stoppedBg);
+        LinearLayout stoppedBalloon=new LinearLayout(this); stoppedBalloon.setOrientation(LinearLayout.VERTICAL); stoppedBalloon.setGravity(Gravity.CENTER); stoppedBalloon.setPadding(8,4,8,4); GradientDrawable stoppedBg=roundedBackground(0xFF111A22,14); stoppedBg.setStroke(2,0xFFFFB74D); stoppedBalloon.setBackground(stoppedBg);
         offMinutesField=new EditText(this); offMinutesField.setSingleLine(true); offMinutesField.setInputType(2); offMinutesField.setText(String.valueOf(prefs.getInt("cycle_off",1))); styleMinuteField(offMinutesField,""); offMinutesField.setTextSize(20); offMinutesField.setTypeface(null,1); offMinutesField.setTextColor(0xFFFFFFFF); offMinutesField.setBackgroundColor(0x00000000); offMinutesField.setSelectAllOnFocus(true); offMinutesField.setGravity(Gravity.CENTER); offMinutesField.setIncludeFontPadding(false); offMinutesField.setMinWidth(0); stoppedBalloon.addView(offMinutesField,new LinearLayout.LayoutParams(-1,64));
         TextView offUnit=new TextView(this); offUnit.setText("MINUTOS"); offUnit.setTextSize(10); offUnit.setTypeface(null,1); offUnit.setTextColor(0xFFBBBBBB); offUnit.setGravity(Gravity.CENTER); stoppedBalloon.addView(offUnit); stoppedTile.addView(stoppedBalloon,new LinearLayout.LayoutParams(-1,104));
         LinearLayout.LayoutParams stoppedParams=new LinearLayout.LayoutParams(0,160,1); stoppedParams.setMargins(10,0,0,0); timerFields.addView(stoppedTile,stoppedParams);
         Button saveTimerButton=new Button(this);
-        saveTimerButton.setText("✓  SALVAR TEMPORIZADOR");
-        saveTimerButton.setTextSize(14);
+        saveTimerButton.setText("✓   SALVAR AJUSTES DO TEMPORIZADOR");
+        saveTimerButton.setTextSize(13);
         saveTimerButton.setTypeface(null,1);
         saveTimerButton.setAllCaps(false);
         LinearLayout.LayoutParams saveTimerParams=new LinearLayout.LayoutParams(-1,54);
         saveTimerParams.setMargins(0,0,0,14);
         root.addView(saveTimerButton,saveTimerParams);
         saveTimerButton.setOnClickListener(v->saveTimerSettings(true));
-        TextView toneTitle=new TextView(this); toneTitle.setText("AJUSTE DA GROSSURA DO ÁUDIO"); toneTitle.setTextSize(16); toneTitle.setTypeface(null,1); toneTitle.setTextColor(0xFFFFFFFF); toneTitle.setPadding(0,16,0,8); root.addView(toneTitle);
-        LinearLayout toneCard=new LinearLayout(this); toneCard.setOrientation(LinearLayout.VERTICAL); toneCard.setPadding(16,14,16,14); toneCard.setBackground(roundedBackground(0xFF101010,18)); LinearLayout.LayoutParams toneCardParams=new LinearLayout.LayoutParams(-1,-2); toneCardParams.setMargins(0,0,0,12); root.addView(toneCard,toneCardParams);
+        TextView toneTitle=new TextView(this); toneTitle.setText("AJUSTE DA GROSSURA DO ÁUDIO"); toneTitle.setTextSize(16); toneTitle.setTypeface(null,1); toneTitle.setTextColor(0xFF55C8F0); toneTitle.setPadding(0,16,0,8); root.addView(toneTitle);
+        LinearLayout toneCard=new LinearLayout(this); toneCard.setOrientation(LinearLayout.VERTICAL); toneCard.setPadding(16,14,16,14); toneCard.setBackground(roundedBackground(0xFF1B242D,18)); LinearLayout.LayoutParams toneCardParams=new LinearLayout.LayoutParams(-1,-2); toneCardParams.setMargins(0,0,0,12); root.addView(toneCard,toneCardParams);
         TextView toneValue=new TextView(this); toneValue.setTextSize(20); toneValue.setTypeface(null,1); toneValue.setTextColor(0xFFFFFFFF); toneValue.setGravity(Gravity.CENTER); toneCard.addView(toneValue,new LinearLayout.LayoutParams(-1,-2));
         SeekBar toneControl=new SeekBar(this); toneControl.setMax(100); toneControl.setProgress(prefs.getInt("tone",50)); toneControl.setProgressTintList(android.content.res.ColorStateList.valueOf(0xFFFFFFFF)); toneControl.setThumbTintList(android.content.res.ColorStateList.valueOf(0xFFFFFFFF)); LinearLayout.LayoutParams toneSeekParams=new LinearLayout.LayoutParams(-1,52); toneSeekParams.setMargins(0,6,0,0); toneCard.addView(toneControl,toneSeekParams);
         LinearLayout toneScale=new LinearLayout(this); toneScale.setOrientation(LinearLayout.HORIZONTAL); toneScale.setGravity(Gravity.CENTER_VERTICAL); toneCard.addView(toneScale);
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
             Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("audio/*"); i.addCategory(Intent.CATEGORY_OPENABLE); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); startActivityForResult(i,PICK_AUDIO);
         }); root.addView(pick);
         musicText=new TextView(this); musicText.setPadding(4,10,4,16); root.addView(musicText); updateMusicText();
-        TextView heading=new TextView(this); heading.setText("ATÉ QUATRO PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFFFFFFFF); heading.setPadding(0,20,0,8); root.addView(heading);
+        TextView heading=new TextView(this); heading.setText("ATÉ QUATRO PROGRAMAÇÕES"); heading.setTextSize(20); heading.setTypeface(null,1); heading.setTextColor(0xFF55C8F0); heading.setPadding(0,20,0,8); root.addView(heading);
         TextView scheduleHint=new TextView(this); scheduleHint.setText("Cadastre até quatro períodos independentes, cada um com seu horário de ligar e desligar."); scheduleHint.setTextColor(0xFFFFFFFF); scheduleHint.setTextSize(13); root.addView(scheduleHint);
         startField=new EditText(this); startField.setSingleLine(true); startField.setHint("Toque para escolher a hora de ligar"); startField.setText("07:00 AM"); styleTimeField(startField); configureTimePicker(startField); root.addView(startField);
         endField=new EditText(this); endField.setSingleLine(true); endField.setHint("Toque para escolher a hora de desligar"); endField.setText("07:00 PM"); styleTimeField(endField); configureTimePicker(endField); root.addView(endField);
@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
         saveBg.setStroke(1,0xFFFFFFFF);
         saveTimerButton.setBackground(saveBg);
         saveTimerButton.setTextColor(0xFF000000);
-        getWindow().getDecorView().setBackgroundColor(0xFF000000);
+        getWindow().getDecorView().setBackgroundColor(0xFF10151B);
         setContentView(scroll);
     }
 
@@ -186,13 +186,13 @@ public class MainActivity extends Activity {
                     t.setPadding(0,0,0,0);
                     view.setBackgroundColor(0x00000000);
                 } else {
-                    GradientDrawable bg=roundedBackground(0xFF080808,18);
-                    bg.setStroke(2,0xFFFFFFFF);
+                    GradientDrawable bg=roundedBackground(0xFF17212A,18);
+                    bg.setStroke(1,0xFF52616E);
                     view.setBackground(bg);
                 }
             } else if(view instanceof Button){
                 GradientDrawable bg=roundedBackground(0xFF080808,22);
-                bg.setStroke(2,0xFFFFFFFF);
+                bg.setStroke(1,0xFF52616E);
                 view.setBackground(bg);
                 t.setTextColor(0xFFFFFFFF);
                 t.setAllCaps(false);
@@ -288,7 +288,7 @@ public class MainActivity extends Activity {
     }
     private void styleTimeField(EditText field){
         field.setTextSize(17); field.setTextColor(0xFFFFFFFF); field.setPadding(18,15,18,15);
-        field.setBackground(roundedBackground(0xFF0D0D0D,18));
+        field.setBackground(roundedBackground(0xFF202A34,18));
         LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2); p.setMargins(0,7,0,7); field.setLayoutParams(p);
     }
     private void refreshList(){
@@ -296,15 +296,15 @@ public class MainActivity extends Activity {
         if(schedules.isEmpty()){
             TextView empty=new TextView(this); empty.setText("Ainda não há horários.\nAdicione seu primeiro período acima.");
             empty.setTextColor(0xFFFFFFFF); empty.setTextSize(14); empty.setGravity(Gravity.CENTER);
-            empty.setPadding(16,22,16,22); empty.setBackground(roundedBackground(0xFF0D0D0D,18)); scheduleList.addView(empty); return;
+            empty.setPadding(16,22,16,22); empty.setBackground(roundedBackground(0xFF202A34,18)); scheduleList.addView(empty); return;
         }
         for(int i=0;i<schedules.size();i++){
             final int index=i; Schedule s=schedules.get(i);
             LinearLayout card=new LinearLayout(this); card.setOrientation(LinearLayout.HORIZONTAL); card.setGravity(Gravity.CENTER_VERTICAL);
-            card.setPadding(16,14,10,14); card.setBackground(roundedBackground(0xFF0D0D0D,18));
+            card.setPadding(16,14,10,14); card.setBackground(roundedBackground(0xFF202A34,18));
             LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2); cp.setMargins(0,5,0,5); scheduleList.addView(card,cp);
             LinearLayout times=new LinearLayout(this); times.setOrientation(LinearLayout.VERTICAL);
-            TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFFFFFFFF);
+            TextView status=new TextView(this); status.setText("PROGRAMAÇÃO "+(i+1)); status.setTextSize(11); status.setTypeface(null,1); status.setTextColor(0xFFFFB74D);
             TextView range=new TextView(this); range.setText("Ligar  "+format12Hour(s.start)+"     •     Desligar  "+format12Hour(s.end)); range.setTextSize(15); range.setTextColor(0xFFFFFFFF); range.setPadding(0,5,0,0);
             times.addView(status); times.addView(range); card.addView(times,new LinearLayout.LayoutParams(0,-2,1));
             Button remove=new Button(this); remove.setText("×"); remove.setTextSize(22); remove.setTextColor(0xFFFFFFFF);
