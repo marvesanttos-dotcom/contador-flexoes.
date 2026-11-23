@@ -80,7 +80,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         hint.setGravity(Gravity.CENTER); hint.setPadding(dp(8),dp(3),dp(8),dp(10)); root.addView(hint);
 
         LinearLayout cameraCard=card(); cameraCard.setGravity(Gravity.CENTER);
-        cameraIndicator=text("●  CÂMERA EM USO",14,0xFF59D6A5,true);
+        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFF9EADBD,true);
         cameraIndicator.setGravity(Gravity.CENTER);
         cameraCard.addView(cameraIndicator);
         TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFF9EADBD,false);
@@ -175,7 +175,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             ImageAnalysis a=new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
             a.setAnalyzer(cameraExecutor,this::analyze); cameraProvider.unbindAll();
             cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,a); cameraStarted=true;
-            cameraIndicator.setText("●  CÂMERA EM USO");
+            cameraIndicator.setText("●  CÂMERA EM USO"); cameraIndicator.setTextColor(0xFF59D6A5);
             startCountdown();
         }catch(Exception e){statusText.setText("NÃO FOI POSSÍVEL ABRIR A CÂMERA");}},ContextCompat.getMainExecutor(this));
     }
@@ -246,7 +246,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         setText.setText(styled);
     }
     private void finishWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFF9EADBD);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
         vibrate(); if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
@@ -257,7 +257,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }}catch(Exception ignored){}
     }
     private void stopWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFF9EADBD);
         if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
         statusText.setText("TREINO ENCERRADO");timerText.setText("DESCANSO  00:00");
