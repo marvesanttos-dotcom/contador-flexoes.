@@ -78,6 +78,7 @@ public class MainActivity extends Activity {
         
         LinearLayout timerCard=new LinearLayout(this); timerCard.setOrientation(LinearLayout.VERTICAL); timerCard.setPadding(16,12,16,12); timerCard.setBackground(roundedBackground(0xFF1B242D,20));
         LinearLayout.LayoutParams timerCardParams=new LinearLayout.LayoutParams(-1,-2); timerCardParams.setMargins(0,0,0,8); root.addView(timerCard,timerCardParams);
+        Button pushupButton=new Button(this); pushupButton.setText("💪  CONTADOR AUTOMÁTICO DE FLEXÕES"); pushupButton.setTextSize(14); pushupButton.setAllCaps(false); LinearLayout.LayoutParams pushupParams=new LinearLayout.LayoutParams(-1,58); pushupParams.setMargins(0,0,0,12); root.addView(pushupButton,0,pushupParams); pushupButton.setOnClickListener(v->startActivity(new Intent(this,PushupActivity.class)));
         TextView timerTitle=new TextView(this); timerTitle.setText("TEMPORIZADOR"); timerTitle.setTextSize(13); timerTitle.setTypeface(null,1); timerTitle.setTextColor(0xFF55C8F0); timerTitle.setPadding(2,0,0,8); timerCard.addView(timerTitle);
         LinearLayout timerFields=new LinearLayout(this); timerFields.setOrientation(LinearLayout.HORIZONTAL); timerFields.setGravity(Gravity.CENTER); timerCard.addView(timerFields);
         LinearLayout playingTile=new LinearLayout(this); playingTile.setOrientation(LinearLayout.VERTICAL); playingTile.setGravity(Gravity.CENTER); playingTile.setPadding(6,4,6,4); playingTile.setBackground(roundedBackground(0xFF252F39,18));
