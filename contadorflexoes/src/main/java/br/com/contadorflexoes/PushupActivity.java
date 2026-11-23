@@ -53,8 +53,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
-        getWindow().setStatusBarColor(0xFF080B0F);
-        getWindow().setNavigationBarColor(0xFF080B0F);
+        getWindow().setStatusBarColor(0xFF080604);
+        getWindow().setNavigationBarColor(0xFF080604);
         cameraExecutor=Executors.newSingleThreadExecutor();
         detector=PoseDetection.getClient(new PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptions.STREAM_MODE).build());
         buildUi();
@@ -70,7 +70,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private LinearLayout card(){
         LinearLayout l=column(); l.setPadding(dp(14),dp(12),dp(14),dp(12));
-        l.setBackground(round(0xFF151D27,16)); return l;
+        l.setBackground(round(0xFF17110A,16)); return l;
     }
     private android.graphics.drawable.GradientDrawable round(int color,int radius){
         android.graphics.drawable.GradientDrawable d=new android.graphics.drawable.GradientDrawable();
@@ -78,12 +78,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private void buildUi(){
         LinearLayout shell=column();
-        shell.setBackgroundColor(0xFF080B0F);
+        shell.setBackgroundColor(0xFF080604);
         LinearLayout tabs=new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
         tabs.setPadding(dp(12),dp(8),dp(12),dp(8));
-        pageTabWorkout=text("TREINO",14,0xFF59D6A5,true);
-        pageTabProgress=text("PROGRESSO  ›",14,0xFF9EADBD,true);
+        pageTabWorkout=text("TREINO",14,0xFFFFB000,true);
+        pageTabProgress=text("PROGRESSO  ›",14,0xFFB8A88F,true);
         pageTabWorkout.setGravity(Gravity.CENTER); pageTabProgress.setGravity(Gravity.CENTER);
         tabs.addView(pageTabWorkout,new LinearLayout.LayoutParams(0,dp(44),1));
         tabs.addView(pageTabProgress,new LinearLayout.LayoutParams(0,dp(44),1));
@@ -106,38 +106,38 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
     private void showPage(int page){
         pages.setDisplayedChild(page);
-        pageTabWorkout.setTextColor(page==0?0xFF59D6A5:0xFF9EADBD);
-        pageTabProgress.setTextColor(page==1?0xFF59D6A5:0xFF9EADBD);
+        pageTabWorkout.setTextColor(page==0?0xFFFFB000:0xFFB8A88F);
+        pageTabProgress.setTextColor(page==1?0xFFFFB000:0xFFB8A88F);
         pageTabWorkout.setText(page==0?"●  TREINO":"TREINO");
         pageTabProgress.setText(page==1?"●  PROGRESSO":"PROGRESSO  ›");
         if(page==1)refreshProgress();
     }
     private ScrollView pageScroll(LinearLayout root){
-        ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(0xFF080B0F);
+        ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(0xFF080604);
         root.setPadding(dp(16),dp(8),dp(16),dp(20));sc.addView(root);return sc;
     }
     private View buildWorkoutPage(){
         LinearLayout root=column();
         TextView title=text("CONTADOR DE FLEXÕES",20,Color.WHITE,true);
         title.setGravity(Gravity.CENTER);title.setPadding(0,dp(4),0,dp(4));root.addView(title);
-        TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFF9EADBD,false);
+        TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFFB8A88F,false);
         hint.setGravity(Gravity.CENTER);hint.setPadding(dp(8),dp(3),dp(8),dp(10));root.addView(hint);
         LinearLayout cameraCard=card();cameraCard.setGravity(Gravity.CENTER);
-        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFF9EADBD,true);cameraIndicator.setGravity(Gravity.CENTER);cameraCard.addView(cameraIndicator);
-        TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFF9EADBD,false);
+        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFFB8A88F,true);cameraIndicator.setGravity(Gravity.CENTER);cameraCard.addView(cameraIndicator);
+        TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFFB8A88F,false);
         cameraNote.setGravity(Gravity.CENTER);cameraNote.setPadding(0,dp(4),0,0);cameraCard.addView(cameraNote);
         LinearLayout.LayoutParams cameraParams=new LinearLayout.LayoutParams(-1,-2);cameraParams.bottomMargin=dp(12);root.addView(cameraCard,cameraParams);
         LinearLayout stats=column();
         LinearLayout repCard=card();repCard.setGravity(Gravity.CENTER);
-        TextView repLabel=text("FLEXÕES",12,0xFF9EADBD,true);repLabel.setGravity(Gravity.CENTER);
-        countText=text("0",48,0xFF59D6A5,true);countText.setGravity(Gravity.CENTER);
+        TextView repLabel=text("FLEXÕES",12,0xFFB8A88F,true);repLabel.setGravity(Gravity.CENTER);
+        countText=text("0",48,0xFFFFB000,true);countText.setGravity(Gravity.CENTER);
         repCard.addView(repLabel);repCard.addView(countText);stats.addView(repCard,new LinearLayout.LayoutParams(-1,-2));
-        LinearLayout seriesCard=card();seriesCard.setGravity(Gravity.CENTER);seriesCard.setBackground(round(0xFF203A36,16));
-        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFB7E8D5,true);seriesLabel.setGravity(Gravity.CENTER);
-        setText=text("1/3",32,0xFF59D6A5,true);setText.setGravity(Gravity.CENTER);
+        LinearLayout seriesCard=card();seriesCard.setGravity(Gravity.CENTER);seriesCard.setBackground(round(0xFF3A270B,16));
+        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFFFD978,true);seriesLabel.setGravity(Gravity.CENTER);
+        setText=text("1/3",32,0xFFFFB000,true);setText.setGravity(Gravity.CENTER);
         seriesCard.addView(seriesLabel);seriesCard.addView(setText);
         LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);seriesParams.topMargin=dp(8);stats.addView(seriesCard,seriesParams);root.addView(stats);
-        statusText=text("PRONTO PARA COMEÇAR",14,0xFF59D6A5,true);statusText.setGravity(Gravity.CENTER);statusText.setPadding(0,dp(12),0,dp(4));root.addView(statusText);
+        statusText=text("PRONTO PARA COMEÇAR",14,0xFFFFB000,true);statusText.setGravity(Gravity.CENTER);statusText.setPadding(0,dp(12),0,dp(4));root.addView(statusText);
         timerText=text("DESCANSO  00:00",20,Color.WHITE,true);timerText.setGravity(Gravity.CENTER);timerText.setPadding(0,dp(2),0,dp(12));root.addView(timerText);
         LinearLayout settings=card();TextView st=text("CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(10));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
@@ -147,11 +147,11 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         row.addView(c1,p1);row.addView(c2,p2);settings.addView(row);
         LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(10);
         addField(restCol,"TEMPO DE DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
-        TextView note=text("Exemplo: 3 séries × 10 flexões. O descanso começa sozinho ao completar cada série.",12,0xFF9EADBD,false);
+        TextView note=text("Exemplo: 3 séries × 10 flexões. O descanso começa sozinho ao completar cada série.",12,0xFFB8A88F,false);
         note.setPadding(0,dp(8),0,0);settings.addView(note);
         LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=dp(4);sp.bottomMargin=dp(12);root.addView(settings,sp);
-        startButton=new Button(this);startButton.setText("INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTextColor(0xFF07110D);
-        startButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF59D6A5));root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
+        startButton=new Button(this);startButton.setText("INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTextColor(0xFF171006);
+        startButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFFB000));root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
         stopButton=new Button(this);stopButton.setText("ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setEnabled(false);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(50)));
         startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
         return pageScroll(root);
@@ -159,19 +159,19 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private View buildProgressPage(){
         LinearLayout root=column();
         TextView title=text("SEU PROGRESSO",22,Color.WHITE,true);title.setGravity(Gravity.CENTER);title.setPadding(0,dp(12),0,dp(4));root.addView(title);
-        TextView hint=text("Deslize para a esquerda durante o treino para ver seu histórico.",12,0xFF9EADBD,false);
+        TextView hint=text("Deslize para a esquerda durante o treino para ver seu histórico.",12,0xFFB8A88F,false);
         hint.setGravity(Gravity.CENTER);hint.setPadding(0,0,0,dp(16));root.addView(hint);
         LinearLayout periodRow=new LinearLayout(this);periodRow.setOrientation(LinearLayout.HORIZONTAL);
         String[] labels={"7 DIAS","MÊS","ANO"};
         for(int i=0;i<3;i++){final int index=i;Button b=new Button(this);b.setText(labels[i]);b.setAllCaps(false);b.setTextSize(12);b.setOnClickListener(v->{progressPeriod=index;refreshProgress();});periodRow.addView(b,new LinearLayout.LayoutParams(0,dp(46),1));}
         root.addView(periodRow);
         LinearLayout summary=card();summary.setGravity(Gravity.CENTER);summary.setPadding(dp(14),dp(18),dp(14),dp(18));
-        progressSummary=text("0 FLEXÕES",30,0xFF59D6A5,true);progressSummary.setGravity(Gravity.CENTER);
-        progressDetail=text("0 treinos concluídos",14,0xFFB8C5D2,false);progressDetail.setGravity(Gravity.CENTER);progressDetail.setPadding(0,dp(6),0,0);
+        progressSummary=text("0 FLEXÕES",30,0xFFFFB000,true);progressSummary.setGravity(Gravity.CENTER);
+        progressDetail=text("0 treinos concluídos",14,0xFFD8C5A3,false);progressDetail.setGravity(Gravity.CENTER);progressDetail.setPadding(0,dp(6),0,0);
         summary.addView(progressSummary);summary.addView(progressDetail);
         LinearLayout.LayoutParams sumP=new LinearLayout.LayoutParams(-1,-2);sumP.topMargin=dp(12);root.addView(summary,sumP);
         LinearLayout history=card();TextView h=text("HISTÓRICO DE TREINOS",14,Color.WHITE,true);history.addView(h);
-        TextView desc=text("Cada treino concluído ou encerrado fica salvo neste aparelho.",12,0xFF9EADBD,false);desc.setPadding(0,dp(5),0,dp(8));history.addView(desc);
+        TextView desc=text("Cada treino concluído ou encerrado fica salvo neste aparelho.",12,0xFFB8A88F,false);desc.setPadding(0,dp(5),0,dp(8));history.addView(desc);
         LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,-2);hp.topMargin=dp(12);root.addView(history,hp);
         return pageScroll(root);
     }
@@ -189,7 +189,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" flexões");
         LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(4);
         while(history.getChildCount()>2)history.removeViewAt(2);
-        if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\nComplete um treino para começar seu histórico.",13,0xFF9EADBD,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
+        if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\nComplete um treino para começar seu histórico.",13,0xFFB8A88F,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
         else{
             for(int i=data.length()-1;i>=0;i--){JSONObject o=data.optJSONObject(i);if(o==null||o.optLong("time",0)<from)continue;
                 Calendar c=Calendar.getInstance();c.setTimeInMillis(o.optLong("time",0));
@@ -210,11 +210,11 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
-        TextView label=text(caption,11,0xFFB8C5D2,true); label.setPadding(0,0,0,dp(5)); parent.addView(label);
+        TextView label=text(caption,11,0xFFD8C5A3,true); label.setPadding(0,0,0,dp(5)); parent.addView(label);
         EditText e=new EditText(this); e.setSingleLine(true); e.setInputType(2); e.setText(initial);
         e.setTextColor(Color.WHITE); e.setTextSize(18); e.setSelectAllOnFocus(true);
         e.setGravity(Gravity.CENTER); e.setPadding(dp(8),0,dp(8),0);
-        e.setBackground(round(0xFF263443,10));
+        e.setBackground(round(0xFF302416,10));
         parent.addView(e,new LinearLayout.LayoutParams(-1,dp(50)));
         if(series)seriesInput=e; else if(caption.startsWith("FLEXÕES"))targetInput=e; else restInput=e;
     }
@@ -246,7 +246,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             ImageAnalysis a=new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
             a.setAnalyzer(cameraExecutor,this::analyze); cameraProvider.unbindAll();
             cameraProvider.bindToLifecycle(this,CameraSelector.DEFAULT_FRONT_CAMERA,a); cameraStarted=true;
-            cameraIndicator.setText("●  CÂMERA EM USO"); cameraIndicator.setTextColor(0xFF59D6A5);
+            cameraIndicator.setText("●  CÂMERA EM USO"); cameraIndicator.setTextColor(0xFFFFB000);
             startCountdown();
         }catch(Exception e){statusText.setText("NÃO FOI POSSÍVEL ABRIR A CÂMERA");}},ContextCompat.getMainExecutor(this));
     }
@@ -317,7 +317,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         setText.setText(styled);
     }
     private void finishWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFF9EADBD);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);statusText.setText("TREINO CONCLUÍDO! PARABÉNS!");
         timerText.setText(" "+totalSets+" SÉRIES COMPLETAS");
         vibrate(); if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
@@ -328,7 +328,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         }}catch(Exception ignored){}
     }
     private void stopWorkout(){
-        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFF9EADBD);
+        workout=false;resting=false;countingEnabled=false;if(countdownTick!=null)handler.removeCallbacks(countdownTick);if(restTick!=null)handler.removeCallbacks(restTick);cameraIndicator.setText("○  CÂMERA DESLIGADA");cameraIndicator.setTextColor(0xFFB8A88F);
         if(cameraProvider!=null)cameraProvider.unbindAll();cameraStarted=false;
         setInputsEnabled(true);startButton.setEnabled(true);stopButton.setEnabled(false);
         statusText.setText("TREINO ENCERRADO");timerText.setText("DESCANSO  00:00");
