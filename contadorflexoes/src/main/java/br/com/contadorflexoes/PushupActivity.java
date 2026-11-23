@@ -116,43 +116,101 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(0xFF080604);
         root.setPadding(dp(16),dp(8),dp(16),dp(20));sc.addView(root);return sc;
     }
+    private android.graphics.drawable.GradientDrawable premiumCard(int bg,int stroke,int radius){
+        android.graphics.drawable.GradientDrawable d=round(bg,radius);
+        d.setStroke(dp(1),stroke);
+        return d;
+    }
+    private LinearLayout premiumPanel(){
+        LinearLayout l=column(); l.setPadding(dp(14),dp(12),dp(14),dp(12));
+        l.setBackground(premiumCard(0xFF090909,0xFFFFB900,18));
+        return l;
+    }
+    private TextView centered(String value,int size,int color,boolean bold){
+        TextView t=text(value,size,color,bold);t.setGravity(Gravity.CENTER);return t;
+    }
     private View buildWorkoutPage(){
         LinearLayout root=column();
-        TextView title=text("CONTADOR DE FLEXÕES",20,Color.WHITE,true);
-        title.setGravity(Gravity.CENTER);title.setPadding(0,dp(4),0,dp(4));root.addView(title);
-        TextView hint=text("Use a câmera frontal e deixe o corpo inteiro visível, com o celular de lado.",13,0xFFB8A88F,false);
-        hint.setGravity(Gravity.CENTER);hint.setPadding(dp(8),dp(3),dp(8),dp(10));root.addView(hint);
-        LinearLayout cameraCard=card();cameraCard.setGravity(Gravity.CENTER);
-        cameraIndicator=text("○  CÂMERA AGUARDANDO",14,0xFFB8A88F,true);cameraIndicator.setGravity(Gravity.CENTER);cameraCard.addView(cameraIndicator);
-        TextView cameraNote=text("Câmera frontal ativa — imagem não exibida",11,0xFFB8A88F,false);
-        cameraNote.setGravity(Gravity.CENTER);cameraNote.setPadding(0,dp(4),0,0);cameraCard.addView(cameraNote);
-        LinearLayout.LayoutParams cameraParams=new LinearLayout.LayoutParams(-1,-2);cameraParams.bottomMargin=dp(12);root.addView(cameraCard,cameraParams);
-        LinearLayout stats=column();
-        LinearLayout repCard=card();repCard.setGravity(Gravity.CENTER);
-        TextView repLabel=text("FLEXÕES",12,0xFFB8A88F,true);repLabel.setGravity(Gravity.CENTER);
-        countText=text("0",48,0xFFFFB000,true);countText.setGravity(Gravity.CENTER);
-        repCard.addView(repLabel);repCard.addView(countText);stats.addView(repCard,new LinearLayout.LayoutParams(-1,-2));
-        LinearLayout seriesCard=card();seriesCard.setGravity(Gravity.CENTER);seriesCard.setBackground(round(0xFF3A270B,16));
-        TextView seriesLabel=text("SÉRIE ATUAL",12,0xFFFFD978,true);seriesLabel.setGravity(Gravity.CENTER);
-        setText=text("1/3",32,0xFFFFB000,true);setText.setGravity(Gravity.CENTER);
-        seriesCard.addView(seriesLabel);seriesCard.addView(setText);
-        LinearLayout.LayoutParams seriesParams=new LinearLayout.LayoutParams(-1,-2);seriesParams.topMargin=dp(8);stats.addView(seriesCard,seriesParams);root.addView(stats);
-        statusText=text("PRONTO PARA COMEÇAR",14,0xFFFFB000,true);statusText.setGravity(Gravity.CENTER);statusText.setPadding(0,dp(12),0,dp(4));root.addView(statusText);
-        timerText=text("DESCANSO  00:00",20,Color.WHITE,true);timerText.setGravity(Gravity.CENTER);timerText.setPadding(0,dp(2),0,dp(12));root.addView(timerText);
-        LinearLayout settings=card();TextView st=text("CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(10));settings.addView(st);
+        LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);
+        TextView menu=centered("☰",27,0xFFFFC400,true);
+        header.addView(menu,new LinearLayout.LayoutParams(dp(42),dp(48)));
+        LinearLayout heading=column();
+        TextView title=text("Contador de",17,Color.WHITE,true);
+        TextView title2=text("FLEXÕES",27,0xFFFFC400,true);
+        heading.addView(title);heading.addView(title2);
+        header.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
+        TextView crown=centered("♛",30,0xFFFFC400,true);header.addView(crown,new LinearLayout.LayoutParams(dp(46),dp(48)));
+        TextView gear=centered("⚙",27,0xFFFFC400,true);header.addView(gear,new LinearLayout.LayoutParams(dp(42),dp(48)));
+        gear.setOnClickListener(v->{ScrollView sc=(ScrollView)root.getParent();if(sc!=null)sc.smoothScrollTo(0,root.getHeight());});
+        root.addView(header);
+        TextView tagline=centered("SEU DESAFIO  •  SUA EVOLUÇÃO",11,0xFFD9B65A,true);
+        tagline.setPadding(0,0,0,dp(10));root.addView(tagline);
+
+        LinearLayout hero=premiumPanel();hero.setOrientation(LinearLayout.HORIZONTAL);hero.setGravity(Gravity.CENTER_VERTICAL);
+        ImageView heroImage=new ImageView(this);
+        try{heroImage.setImageResource(R.mipmap.ic_launcher);}catch(Exception ignored){}
+        heroImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        hero.addView(heroImage,new LinearLayout.LayoutParams(dp(112),dp(124)));
+        LinearLayout repBlock=column();repBlock.setGravity(Gravity.CENTER);
+        LinearLayout seriesRow=new LinearLayout(this);seriesRow.setGravity(Gravity.CENTER);
+        TextView flexIcon=centered("💪",20,0xFFFFC400,true);seriesRow.addView(flexIcon);
+        TextView seriesLabel=centered("  SÉRIE ATUAL",12,Color.WHITE,true);seriesRow.addView(seriesLabel);
+        repBlock.addView(seriesRow);
+        setText=centered("1 / 3",24,0xFFFFC400,true);
+        repBlock.addView(setText);
+        countText=centered("0",58,Color.WHITE,true);repBlock.addView(countText);
+        TextView repCaption=centered("FLEXÕES",11,0xFFD9B65A,true);repBlock.addView(repCaption);
+        TextView targetCaption=centered("META DA SÉRIE  •  10",12,0xFFFFC400,true);repBlock.addView(targetCaption);
+        hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,-2);heroP.bottomMargin=dp(10);root.addView(hero,heroP);
+
+        LinearLayout quickStats=new LinearLayout(this);quickStats.setOrientation(LinearLayout.HORIZONTAL);
+        String[] statNames={"HOJE","ESTA SEMANA","ESTE MÊS"};
+        String[] statValues={"0","0","0"};
+        String[] statIcons={"▮","▥","🏆"};
+        for(int i=0;i<3;i++){
+            LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(5),dp(10),dp(5),dp(10));
+            item.addView(centered(statIcons[i],19,0xFFFFC400,true));
+            item.addView(centered(statNames[i],10,Color.WHITE,true));
+            item.addView(centered(statValues[i],22,Color.WHITE,true));
+            LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,dp(88),1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
+        }
+        LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,-2);qsp.bottomMargin=dp(10);root.addView(quickStats,qsp);
+
+        LinearLayout cameraCard=premiumPanel();cameraCard.setGravity(Gravity.CENTER);
+        cameraIndicator=centered("●  CÂMERA AGUARDANDO",12,0xFFFFC400,true);cameraCard.addView(cameraIndicator);
+        TextView cameraNote=centered("Câmera frontal ativa • imagem não exibida",10,0xFFB8A88F,false);cameraNote.setPadding(0,dp(3),0,0);cameraCard.addView(cameraNote);
+        LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.bottomMargin=dp(10);root.addView(cameraCard,cp);
+
+        LinearLayout timerCard=premiumPanel();timerCard.setOrientation(LinearLayout.HORIZONTAL);timerCard.setGravity(Gravity.CENTER_VERTICAL);
+        TextView clock=centered("◷",42,0xFFFFC400,true);timerCard.addView(clock,new LinearLayout.LayoutParams(dp(58),dp(70)));
+        LinearLayout timerCol=column();timerCol.setGravity(Gravity.CENTER_VERTICAL);
+        TextView timerTitle=text("DESCANSO",12,Color.WHITE,true);timerCol.addView(timerTitle);
+        timerText=text("00:00",35,0xFFFFC400,true);timerCol.addView(timerText);
+        timerCard.addView(timerCol,new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-1,-2);tp.bottomMargin=dp(10);root.addView(timerCard,tp);
+
+        statusText=centered("PRONTO PARA COMEÇAR",13,0xFFFFC400,true);
+        statusText.setPadding(0,dp(4),0,dp(8));root.addView(statusText);
+
+        LinearLayout settings=premiumPanel();
+        TextView st=text("⚙  CONFIGURAÇÕES DO TREINO",14,Color.WHITE,true);st.setPadding(0,0,0,dp(10));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout c1=column(),c2=column();addField(c1,"QUANTIDADE DE SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);
+        LinearLayout c1=column(),c2=column();addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);
         LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(6);
         LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(6);
         row.addView(c1,p1);row.addView(c2,p2);settings.addView(row);
         LinearLayout restCol=column();LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=dp(10);
-        addField(restCol,"TEMPO DE DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
-        TextView note=text("Exemplo: 3 séries × 10 flexões. O descanso começa sozinho ao completar cada série.",12,0xFFB8A88F,false);
+        addField(restCol,"DESCANSO (SEGUNDOS)","60",false);settings.addView(restCol,rp);
+        TextView note=text("O descanso começa automaticamente ao concluir cada série.",11,0xFFB8A88F,false);
         note.setPadding(0,dp(8),0,0);settings.addView(note);
-        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=dp(4);sp.bottomMargin=dp(12);root.addView(settings,sp);
-        startButton=new Button(this);startButton.setText("INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTextColor(0xFF171006);
-        startButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFFB000));root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
-        stopButton=new Button(this);stopButton.setText("ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setEnabled(false);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(50)));
+        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.bottomMargin=dp(10);root.addView(settings,sp);
+
+        startButton=new Button(this);startButton.setText("▶   INICIAR TREINO");startButton.setAllCaps(false);startButton.setTextSize(16);startButton.setTypeface(null,1);startButton.setTextColor(0xFF100B00);
+        startButton.setBackground(premiumCard(0xFFFFC400,0xFFFFE47A,28));
+        root.addView(startButton,new LinearLayout.LayoutParams(-1,dp(54)));
+        stopButton=new Button(this);stopButton.setText("■   ENCERRAR TREINO");stopButton.setAllCaps(false);stopButton.setTextSize(13);stopButton.setTextColor(0xFFE8DCC2);stopButton.setBackground(premiumCard(0xFF15110B,0xFF70521A,26));
+        root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(48)));
         startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
         return pageScroll(root);
     }
