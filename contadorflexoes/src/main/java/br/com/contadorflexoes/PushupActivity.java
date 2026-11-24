@@ -35,7 +35,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private boolean workout=false, resting=false;
     private int reps=0, sets=1, totalSets=3, target=10, restSeconds=60, remaining=0;
     private long lastRepAt=0;
-    private Runnable restTick, countdownTick;
+    private Runnable restTick;
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
