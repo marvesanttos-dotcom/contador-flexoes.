@@ -169,10 +169,10 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
         String[] statIcons={"📅","🗓️","🏆"};
         for(int i=0;i<3;i++){
-            LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(5),dp(10),dp(5),dp(10));
-            item.addView(centered(statIcons[i],23,0xFFFFC400,true));
-            TextView statLabel=centered(statNames[i],11,Color.WHITE,true);statLabel.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));item.addView(statLabel);
-            item.addView(centered(statValues[i],25,Color.WHITE,true));
+            LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(7),dp(12),dp(7),dp(12));
+            item.addView(centered(statIcons[i],30,0xFFFFC400,true));
+            TextView statLabel=centered(statNames[i],13,Color.WHITE,true);statLabel.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));item.addView(statLabel);
+            item.addView(centered(statValues[i],34,Color.WHITE,true));
             LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,-1,1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
         }
         LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,0,0.78f);qsp.bottomMargin=dp(7);root.addView(quickStats,qsp);
