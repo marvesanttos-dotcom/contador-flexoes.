@@ -154,9 +154,9 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView flexIcon=centered("💪",20,0xFFFFFF00,true);seriesRow.addView(flexIcon);
         TextView seriesLabel=centered("  SÉRIE ATUAL",14,Color.WHITE,true);seriesRow.addView(seriesLabel);
         repBlock.addView(seriesRow);
-        setText=centered("1 / 3",29,0xFFFFFF00,true);
+        setText=centered("1 / 3",29,0xFFFFFF00,true);setText.setSingleLine(true);setText.setIncludeFontPadding(false);setText.setAutoSizeTextTypeUniformWithConfiguration(18,29,1,android.util.TypedValue.COMPLEX_UNIT_SP);
         repBlock.addView(setText);
-        countText=centered("0",60,Color.WHITE,true);repBlock.addView(countText);
+        countText=centered("0",60,Color.WHITE,true);countText.setSingleLine(true);countText.setIncludeFontPadding(false);countText.setAutoSizeTextTypeUniformWithConfiguration(28,60,1,android.util.TypedValue.COMPLEX_UNIT_SP);repBlock.addView(countText);
         TextView repCaption=centered("FLEXÕES",12,0xFFFFD933,true);repBlock.addView(repCaption);
         TextView targetCaption=centered("META DA SÉRIE  •  10",12,0xFFFFFF00,true);android.graphics.drawable.GradientDrawable targetBg=round(0xFF090806,18);targetBg.setStroke(dp(1),0xFFFFFF33);targetCaption.setBackground(targetBg);targetCaption.setPadding(dp(9),dp(3),dp(9),dp(3));repBlock.addView(targetCaption);
         hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
@@ -176,8 +176,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             }else{
                 item.addView(centered("🏆",30,0xFFFFFF00,true));
             }
-            TextView statLabel=centered(statNames[i],13,Color.WHITE,true);statLabel.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));item.addView(statLabel);
-            item.addView(centered(statValues[i],34,Color.WHITE,true));
+            TextView statLabel=centered(statNames[i],13,Color.WHITE,true);statLabel.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));statLabel.setSingleLine(true);statLabel.setIncludeFontPadding(false);statLabel.setAutoSizeTextTypeUniformWithConfiguration(8,13,1,android.util.TypedValue.COMPLEX_UNIT_SP);item.addView(statLabel);
+            TextView statNumber=centered(statValues[i],34,Color.WHITE,true);statNumber.setSingleLine(true);statNumber.setIncludeFontPadding(false);statNumber.setAutoSizeTextTypeUniformWithConfiguration(16,34,1,android.util.TypedValue.COMPLEX_UNIT_SP);item.addView(statNumber);
             LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,-1,1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
         }
         LinearLayout.LayoutParams qsp=new LinearLayout.LayoutParams(-1,0,0.78f);qsp.bottomMargin=dp(7);root.addView(quickStats,qsp);
@@ -322,7 +322,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             paint.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));
             paint.setTextSize(dp(18));paint.setColor(0xFFF4EBDD);c.drawText(label,cx+dp(8),dp(46),paint);
             paint.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",android.graphics.Typeface.BOLD_ITALIC));
-            paint.setTextSize(Math.min(dp(82),h*0.48f));paint.setColor(0xFFFFFF00);paint.setShadowLayer(dp(10),0,0,0xFFFF8C00);c.drawText(value,cx,Math.min(h-dp(40),h*0.73f),paint);paint.clearShadowLayer();
+            float timerTextSize=Math.min(dp(82),h*0.48f);float maxTimerWidth=Math.max(dp(90),w-dp(118));paint.setTextSize(timerTextSize);while(paint.measureText(value)>maxTimerWidth&&timerTextSize>dp(28)){timerTextSize-=dp(2);paint.setTextSize(timerTextSize);}paint.setColor(0xFFFFFF00);paint.setShadowLayer(dp(10),0,0,0xFFFF8C00);c.drawText(value,cx,Math.min(h-dp(40),h*0.73f),paint);paint.clearShadowLayer();
             paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));paint.setColor(0xFFFFFF00);c.drawLine(dp(28),h-dp(13),w-dp(28),h-dp(13),paint);
         }
         private float cx(){return getWidth()/2f;}
@@ -382,12 +382,12 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     }
 
     private void addField(LinearLayout parent,String caption,String initial,boolean series){
-        TextView label=text(caption,10,0xFFD8C5A3,true); label.setSingleLine(true);label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
+        TextView label=text(caption,10,0xFFD8C5A3,true); label.setSingleLine(true);label.setIncludeFontPadding(false);label.setAutoSizeTextTypeUniformWithConfiguration(7,10,1,android.util.TypedValue.COMPLEX_UNIT_SP);label.setGravity(Gravity.CENTER);label.setPadding(0,0,0,dp(5)); parent.addView(label);
         LinearLayout control=new LinearLayout(this);control.setGravity(Gravity.CENTER);control.setOrientation(LinearLayout.HORIZONTAL);control.setPadding(dp(2),dp(2),dp(2),dp(2));control.setBackground(round(0xFF303030,24));
         Button minus=new Button(this);minus.setText("−");minus.setTextSize(17);minus.setMinWidth(0);minus.setMinimumWidth(0);minus.setPadding(0,0,0,0);
         minus.setTextColor(0xFFFFFF00);minus.setBackground(round(0xFF252525,24));
         EditText e=new EditText(this);e.setSingleLine(true);e.setInputType(2);e.setText(initial);
-        e.setTextColor(Color.WHITE);e.setTextSize(18);e.setSelectAllOnFocus(true);e.setGravity(Gravity.CENTER);
+        e.setTextColor(Color.WHITE);e.setTextSize(18);e.setSingleLine(true);e.setIncludeFontPadding(false);e.setAutoSizeTextTypeUniformWithConfiguration(13,18,1,android.util.TypedValue.COMPLEX_UNIT_SP);e.setSelectAllOnFocus(true);e.setGravity(Gravity.CENTER);
         e.setPadding(0,0,0,0);e.setBackgroundColor(Color.TRANSPARENT);
         Button plus=new Button(this);plus.setText("+");plus.setTextSize(17);plus.setMinWidth(0);plus.setMinimumWidth(0);plus.setPadding(0,0,0,0);
         plus.setTextColor(0xFFFFFF00);plus.setBackground(round(0xFF252525,24));
