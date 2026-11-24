@@ -167,10 +167,13 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         Calendar weekStart=(Calendar)dayStart.clone();weekStart.add(Calendar.DAY_OF_YEAR,-6);
         Calendar monthStart=(Calendar)dayStart.clone();monthStart.set(Calendar.DAY_OF_MONTH,1);
         String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
-        String[] statIcons={"📅","🗓️","🏆"};
         for(int i=0;i<3;i++){
             LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(7),dp(12),dp(7),dp(12));
-            item.addView(centered(statIcons[i],30,0xFFFFC400,true));
+            if(i<2){
+                item.addView(new StatCalendarIcon(this,i==1),new LinearLayout.LayoutParams(dp(34),dp(30)));
+            }else{
+                item.addView(centered("🏆",30,0xFFFFC400,true));
+            }
             TextView statLabel=centered(statNames[i],13,Color.WHITE,true);statLabel.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));item.addView(statLabel);
             item.addView(centered(statValues[i],34,Color.WHITE,true));
             LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(0,-1,1);ip.leftMargin=dp(i==0?0:4);ip.rightMargin=dp(4);quickStats.addView(item,ip);
@@ -203,6 +206,37 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         stopButton.setVisibility(View.GONE);root.addView(stopButton,new LinearLayout.LayoutParams(-1,dp(38)));
         startButton.setOnClickListener(v->startWorkout());stopButton.setOnClickListener(v->stopWorkout());
         return root;
+    }
+
+    private class StatCalendarIcon extends View {
+        private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final boolean weekly;
+        StatCalendarIcon(Context context,boolean isWeekly){super(context);weekly=isWeekly;}
+        @Override protected void onDraw(Canvas canvas){
+            super.onDraw(canvas);
+            float w=getWidth(),h=getHeight(),pad=dp(3);
+            p.setColor(0xFFFFC400);p.setStrokeWidth(dp(2.4f));p.setStrokeCap(Paint.Cap.ROUND);p.setStrokeJoin(Paint.Join.ROUND);
+            p.setStyle(Paint.Style.STROKE);
+            RectF r=new RectF(pad+dp(1),pad+dp(4),w-pad-dp(1),h-pad);
+            canvas.drawRoundRect(r,dp(3),dp(3),p);
+            p.setStyle(Paint.Style.FILL);
+            canvas.drawRoundRect(pad+dp(1),pad+dp(4),w-pad-dp(1),pad+dp(10),dp(2),dp(2),p);
+            p.setStyle(Paint.Style.STROKE);
+            canvas.drawLine(w*0.30f,pad+dp(1),w*0.30f,pad+dp(8),p);
+            canvas.drawLine(w*0.70f,pad+dp(1),w*0.70f,pad+dp(8),p);
+            if(weekly){
+                float left=w*0.25f,top=h*0.48f,cw=w*0.17f,ch=h*0.16f;
+                for(int row=0;row<2;row++)for(int col=0;col<3;col++){
+                    float x=left+col*cw,y=top+row*ch;
+                    canvas.drawRoundRect(x,y,x+dp(2.8f),y+dp(2.8f),dp(1),dp(1),p);
+                }
+            }else{
+                p.setStyle(Paint.Style.FILL);
+                Path check=new Path();check.moveTo(w*0.25f,h*0.70f);check.lineTo(w*0.40f,h*0.82f);
+                check.lineTo(w*0.72f,h*0.52f);check.lineTo(w*0.79f,h*0.59f);check.lineTo(w*0.40f,h*0.94f);check.close();
+                canvas.drawPath(check,p);
+            }
+        }
     }
 
     private class HeroArtworkView extends View {
