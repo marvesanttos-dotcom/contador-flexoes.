@@ -21,19 +21,19 @@ import org.json.JSONObject;
 
 public class PushupActivity extends androidx.activity.ComponentActivity {
     
-    private TextView countText, setText, statusText;
+    private TextView setText, statusText;
     private CircleTimerView restCircle;
     private ViewFlipper pages;
     private TextView pageTabWorkout, pageTabProgress, progressSummary, progressDetail;
     private int progressPeriod=0;
-    private int completedReps=0;
+    private int completedSets=0;
     private boolean sessionSaved=false;
     private float touchStartX, touchStartY;
-    private EditText seriesInput, targetInput, restInput;
+    private EditText seriesInput, restInput;
     private Button startButton, stopButton;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean workout=false, resting=false;
-    private int reps=0, sets=1, totalSets=3, target=10, restSeconds=60, remaining=0;
+    private int sets=1, totalSets=3, restSeconds=60, remaining=0;
     private long lastRepAt=0;
     private Runnable restTick;
 
@@ -114,9 +114,9 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
     private TextView centered(String value,int size,int color,boolean bold){
         TextView t=text(value,size,color,bold);t.setGravity(Gravity.CENTER);return t;
     }
-    private int sumRepsSince(long from){
+    private int sumSetsSince(long from){
         JSONArray a=loadHistory();int sum=0;long now=System.currentTimeMillis();
-        for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null){long t=o.optLong("time",0);if(t>=from&&t<=now)sum+=o.optInt("reps",0);}}
+        for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null){long t=o.optLong("time",0);if(t>=from&&t<=now)sum+=o.optInt("sets",0);}}
         return sum;
     }
     private View buildWorkoutPage(){
@@ -135,24 +135,19 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         repBlock.addView(seriesRow);
         setText=centered("1 / 3",29,0xFFFFFF00,true);setText.setSingleLine(true);setText.setIncludeFontPadding(false);setText.setAutoSizeTextTypeUniformWithConfiguration(18,29,1,android.util.TypedValue.COMPLEX_UNIT_SP);
         repBlock.addView(setText);
-        countText=centered("0",60,Color.WHITE,true);countText.setSingleLine(true);countText.setIncludeFontPadding(false);countText.setAutoSizeTextTypeUniformWithConfiguration(28,60,1,android.util.TypedValue.COMPLEX_UNIT_SP);repBlock.addView(countText);
-        TextView repCaption=centered("FLEXÕES",12,0xFFFFD933,true);repBlock.addView(repCaption);
-        TextView targetCaption=centered("META DA SÉRIE  •  10",12,0xFFFFFF00,true);android.graphics.drawable.GradientDrawable targetBg=round(0xFF090806,18);targetBg.setStroke(dp(1),0xFFFFFF33);targetCaption.setBackground(targetBg);targetCaption.setPadding(dp(9),dp(3),dp(9),dp(3));repBlock.addView(targetCaption);
-        LinearLayout manualRow=new LinearLayout(this);manualRow.setGravity(Gravity.CENTER);manualRow.setPadding(0,dp(5),0,0);
-        Button minusRep=new Button(this);minusRep.setText("−");minusRep.setTextSize(22);minusRep.setTextColor(0xFFFFFF00);minusRep.setBackground(round(0xFF30220B,24));minusRep.setMinWidth(dp(48));minusRep.setOnClickListener(v->removeManualRep());
-        Button plusRep=new Button(this);plusRep.setText("+  FLEXÃO");plusRep.setTextSize(14);plusRep.setTextColor(0xFF100B00);plusRep.setAllCaps(false);plusRep.setTypeface(null,1);plusRep.setBackground(round(0xFFFFD500,24));plusRep.setOnClickListener(v->addManualRep());
-        LinearLayout.LayoutParams mrp=new LinearLayout.LayoutParams(dp(54),dp(44));mrp.rightMargin=dp(6);manualRow.addView(minusRep,mrp);
-        manualRow.addView(plusRep,new LinearLayout.LayoutParams(dp(126),dp(44)));repBlock.addView(manualRow);
+        TextView seriesCaption=centered("SÉRIES CONCLUÍDAS",12,0xFFFFD933,true);repBlock.addView(seriesCaption);
+        Button completeSetButton=new Button(this);completeSetButton.setText("✓  CONCLUIR SÉRIE");completeSetButton.setAllCaps(false);completeSetButton.setTextSize(12);completeSetButton.setTypeface(null,1);completeSetButton.setTextColor(0xFF100B00);completeSetButton.setBackground(round(0xFFFFD500,24));completeSetButton.setOnClickListener(v->completeSeries());
+        LinearLayout.LayoutParams completeP=new LinearLayout.LayoutParams(dp(154),dp(46));completeP.topMargin=dp(8);repBlock.addView(completeSetButton,completeP);
         hero.addView(repBlock,new LinearLayout.LayoutParams(0,-2,1));
         LinearLayout.LayoutParams heroP=new LinearLayout.LayoutParams(-1,0,1.62f);heroP.bottomMargin=dp(7);root.addView(hero,heroP);
 
         LinearLayout quickStats=new LinearLayout(this);quickStats.setOrientation(LinearLayout.HORIZONTAL);
-        String[] statNames={"HOJE","ESTA SEMANA","ESTE MÊS"};
+        String[] statNames={"SÉRIES HOJE","SÉRIES NA SEMANA","SÉRIES NO MÊS"};
         Calendar statNow=Calendar.getInstance();
         Calendar dayStart=(Calendar)statNow.clone();dayStart.set(Calendar.HOUR_OF_DAY,0);dayStart.set(Calendar.MINUTE,0);dayStart.set(Calendar.SECOND,0);dayStart.set(Calendar.MILLISECOND,0);
         Calendar weekStart=(Calendar)dayStart.clone();weekStart.add(Calendar.DAY_OF_YEAR,-6);
         Calendar monthStart=(Calendar)dayStart.clone();monthStart.set(Calendar.DAY_OF_MONTH,1);
-        String[] statValues={String.valueOf(sumRepsSince(dayStart.getTimeInMillis())),String.valueOf(sumRepsSince(weekStart.getTimeInMillis())),String.valueOf(sumRepsSince(monthStart.getTimeInMillis()))};
+        String[] statValues={String.valueOf(sumSetsSince(dayStart.getTimeInMillis())),String.valueOf(sumSetsSince(weekStart.getTimeInMillis())),String.valueOf(sumSetsSince(monthStart.getTimeInMillis()))};
         for(int i=0;i<3;i++){
             LinearLayout item=premiumPanel();item.setGravity(Gravity.CENTER);item.setPadding(dp(7),dp(12),dp(7),dp(12));
             if(i<2){
@@ -178,7 +173,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         TextView st=text("⚙  CONFIGURAÇÕES DO TREINO",17,Color.WHITE,true);st.setTypeface(android.graphics.Typeface.create("sans-serif",android.graphics.Typeface.BOLD_ITALIC));st.setPadding(0,0,0,dp(4));settings.addView(st);
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout c1=column(),c2=column(),c3=column();
-        addField(c1,"SÉRIES","3",true);addField(c2,"FLEXÕES POR SÉRIE","10",false);addField(c3,"DESCANSO (SEGUNDOS)","60",false);
+        addField(c1,"SÉRIES","3",true);addField(c2,"DESCANSO (SEGUNDOS)","60",false);
         LinearLayout.LayoutParams p1=new LinearLayout.LayoutParams(0,-2,1);p1.rightMargin=dp(4);
         LinearLayout.LayoutParams p2=new LinearLayout.LayoutParams(0,-2,1);p2.leftMargin=dp(3);p2.rightMargin=dp(3);
         LinearLayout.LayoutParams p3=new LinearLayout.LayoutParams(0,-2,1);p3.leftMargin=dp(4);
@@ -322,7 +317,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         for(int i=0;i<3;i++){final int index=i;Button b=new Button(this);b.setText(labels[i]);b.setAllCaps(false);b.setTextSize(12);b.setOnClickListener(v->{progressPeriod=index;refreshProgress();});periodRow.addView(b,new LinearLayout.LayoutParams(0,dp(46),1));}
         root.addView(periodRow);
         LinearLayout summary=card();summary.setGravity(Gravity.CENTER);summary.setPadding(dp(14),dp(18),dp(14),dp(18));
-        progressSummary=text("0 FLEXÕES",30,0xFFFFD500,true);progressSummary.setGravity(Gravity.CENTER);
+        progressSummary=text("0 SÉRIES",30,0xFFFFD500,true);progressSummary.setGravity(Gravity.CENTER);
         progressDetail=text("0 treinos concluídos",14,0xFFD8C5A3,false);progressDetail.setGravity(Gravity.CENTER);progressDetail.setPadding(0,dp(6),0,0);
         summary.addView(progressSummary);summary.addView(progressDetail);
         LinearLayout.LayoutParams sumP=new LinearLayout.LayoutParams(-1,-2);sumP.topMargin=dp(12);root.addView(summary,sumP);
@@ -338,11 +333,11 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         if(progressPeriod==0){start.add(Calendar.DAY_OF_YEAR,-6);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
         else if(progressPeriod==1){start.set(Calendar.DAY_OF_MONTH,1);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
         else {start.set(Calendar.DAY_OF_YEAR,1);start.set(Calendar.HOUR_OF_DAY,0);start.set(Calendar.MINUTE,0);start.set(Calendar.SECOND,0);}
-        int repsSum=0,workouts=0,best=0;long from=start.getTimeInMillis();
-        for(int i=0;i<data.length();i++){JSONObject o=data.optJSONObject(i);if(o==null)continue;long time=o.optLong("time",0);if(time>=from&&time<=now.getTimeInMillis()){int n=o.optInt("reps",0);repsSum+=n;workouts++;best=Math.max(best,n);}}
+        int setsSum=0,workouts=0,best=0;long from=start.getTimeInMillis();
+        for(int i=0;i<data.length();i++){JSONObject o=data.optJSONObject(i);if(o==null)continue;long time=o.optLong("time",0);if(time>=from&&time<=now.getTimeInMillis()){int n=o.optInt("sets",0);setsSum+=n;workouts++;best=Math.max(best,n);}}
         String period=progressPeriod==0?"nos últimos 7 dias":progressPeriod==1?"neste mês":"neste ano";
-        progressSummary.setText(String.format(Locale.getDefault(),"%d FLEXÕES",repsSum));
-        progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" flexões");
+        progressSummary.setText(String.format(Locale.getDefault(),"%d SÉRIES",setsSum));
+        progressDetail.setText(workouts+" treinos "+period+"  •  melhor treino: "+best+" séries");
         LinearLayout history=(LinearLayout)((LinearLayout)((ScrollView)pages.getChildAt(1)).getChildAt(0)).getChildAt(4);
         while(history.getChildCount()>2)history.removeViewAt(2);
         if(workouts==0){TextView empty=text("Ainda não há treinos registrados neste período.\\nComplete um treino para começar seu histórico.",13,0xFFB8A88F,false);empty.setPadding(0,dp(12),0,dp(4));history.addView(empty);}
@@ -350,7 +345,7 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
             for(int i=data.length()-1;i>=0;i--){JSONObject o=data.optJSONObject(i);if(o==null||o.optLong("time",0)<from)continue;
                 Calendar c=Calendar.getInstance();c.setTimeInMillis(o.optLong("time",0));
                 String date=String.format(Locale.getDefault(),"%02d/%02d/%04d",c.get(Calendar.DAY_OF_MONTH),c.get(Calendar.MONTH)+1,c.get(Calendar.YEAR));
-                TextView item=text("•  "+date+"     "+o.optInt("reps",0)+" flexões",14,Color.WHITE,false);item.setPadding(0,dp(8),0,dp(8));history.addView(item);
+                TextView item=text("•  "+date+"     "+o.optInt("sets",0)+" séries",14,Color.WHITE,false);item.setPadding(0,dp(8),0,dp(8));history.addView(item);
             }
         }
     }
@@ -359,8 +354,8 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         catch(Exception e){return new JSONArray();}
     }
     private void saveWorkout(){
-        if(sessionSaved||completedReps<=0)return;
-        try{JSONArray a=loadHistory();JSONObject o=new JSONObject();o.put("time",System.currentTimeMillis());o.put("reps",completedReps);o.put("sets",sets);a.put(o);
+        if(sessionSaved||completedSets<=0)return;
+        try{JSONArray a=loadHistory();JSONObject o=new JSONObject();o.put("time",System.currentTimeMillis());o.put("sets",completedSets);a.put(o);
             getSharedPreferences("flex_history",MODE_PRIVATE).edit().putString("sessions",a.toString()).apply();sessionSaved=true;
         }catch(Exception ignored){}
     }
@@ -378,46 +373,38 @@ public class PushupActivity extends androidx.activity.ComponentActivity {
         LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(dp(28),dp(38));
         control.addView(minus,bp);LinearLayout.LayoutParams ep=new LinearLayout.LayoutParams(0,dp(38),1);ep.leftMargin=dp(2);ep.rightMargin=dp(2);control.addView(e,ep);control.addView(plus,new LinearLayout.LayoutParams(dp(28),dp(38)));
         parent.addView(control);
-        int min=series?1:1,max=series?30:caption.startsWith("FLEXÕES")?200:600;
+        int min=1,max=series?30:600;
         int step=caption.startsWith("DESCANSO")?5:1;
         minus.setOnClickListener(v->{try{int n=Integer.parseInt(e.getText().toString());e.setText(String.valueOf(Math.max(min,n-step)));}catch(Exception ignored){}});
         plus.setOnClickListener(v->{try{int n=Integer.parseInt(e.getText().toString());e.setText(String.valueOf(Math.min(max,n+step)));}catch(Exception ignored){}});
-        if(series)seriesInput=e;else if(caption.startsWith("FLEXÕES"))targetInput=e;else restInput=e;
+        if(series)seriesInput=e;else restInput=e;
     }
 
     private void startWorkout(){
-        try { totalSets=Integer.parseInt(seriesInput.getText().toString()); target=Integer.parseInt(targetInput.getText().toString()); restSeconds=Integer.parseInt(restInput.getText().toString()); }
+        try { totalSets=Integer.parseInt(seriesInput.getText().toString()); restSeconds=Integer.parseInt(restInput.getText().toString()); }
         catch(Exception e){ Toast.makeText(this,"Preencha todas as configurações.",Toast.LENGTH_SHORT).show(); return; }
-        if(totalSets<1||totalSets>30||target<1||target>200||restSeconds<5||restSeconds>600){
-            Toast.makeText(this,"Séries: 1 a 30. Flexões: 1 a 200. Descanso: 5 a 600 segundos.",Toast.LENGTH_LONG).show(); return;
+        if(totalSets<1||totalSets>30||restSeconds<5||restSeconds>600){
+            Toast.makeText(this,"Séries: 1 a 30. Descanso: 5 a 600 segundos.",Toast.LENGTH_LONG).show(); return;
         }
-        reps=0; completedReps=0; sessionSaved=false; sets=1; workout=true; resting=false; updateStats();
+        completedSets=0; sessionSaved=false; sets=1; workout=true; resting=false; updateStats();
         setInputsEnabled(false); startButton.setEnabled(false); stopButton.setVisibility(View.VISIBLE); stopButton.setEnabled(true);
-        statusText.setText("TREINO ATIVO — REGISTRE SUAS FLEXÕES");
+        statusText.setText("TREINO ATIVO — CONCLUA CADA SÉRIE");
         restCircle.setDisplay("00:00","TREINO ATIVO",0f);
     }
-    private void setInputsEnabled(boolean enabled){seriesInput.setEnabled(enabled);targetInput.setEnabled(enabled);restInput.setEnabled(enabled);}
-    private void addManualRep(){
+    private void setInputsEnabled(boolean enabled){seriesInput.setEnabled(enabled);restInput.setEnabled(enabled);}
+    private void completeSeries(){
         if(!workout||resting)return;
-        reps++;completedReps++;onRep();
-    }
-    private void removeManualRep(){
-        if(!workout||resting||reps<=0)return;
-        reps--;completedReps=Math.max(0,completedReps-1);updateStats();
-        statusText.setText("FLEXÃO "+reps+" DE "+target);
-    }
-    private void onRep(){
-        if(!workout||resting)return; updateStats(); statusText.setText("FLEXÃO "+reps+" DE "+target);
-        if(reps>=target){ if(sets>=totalSets){finishWorkout();return;} beginRest(); }
+        completedSets++;
+        if(sets>=totalSets){finishWorkout();return;}
+        beginRest();
     }
     private void beginRest(){resting=true;remaining=restSeconds;statusText.setText("SÉRIE CONCLUÍDA! HORA DE DESCANSAR");vibrate();tickRest();}
     private void tickRest(){
         restCircle.setDisplay(String.format(Locale.getDefault(),"%02d:%02d",remaining/60,remaining%60),"DESCANSO",restSeconds<=0?0f:(float)(restSeconds-remaining)/restSeconds);
-        if(remaining<=0){resting=false;reps=0;sets++;updateStats();statusText.setText("VAMOS! PRÓXIMA SÉRIE — REGISTRE AS FLEXÕES");restCircle.setDisplay("00:00","DESCANSO",0f);vibrate();return;}
+        if(remaining<=0){resting=false;sets++;updateStats();statusText.setText("DESCANSO FINALIZADO — CONCLUA A PRÓXIMA SÉRIE");restCircle.setDisplay("00:00","DESCANSO",0f);vibrate();return;}
         remaining--; restTick=this::tickRest; handler.postDelayed(restTick,1000);
     }
     private void updateStats(){
-        countText.setText(String.valueOf(reps));
         String progress=sets+"/"+totalSets;
         SpannableString styled=new SpannableString(progress);
         int slash=progress.indexOf("/");
